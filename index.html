@@ -3,11 +3,11 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="description" content="A polygon trench run in a single HTML file: an X-wing over the battle station surface, TIE fighters, a squadron to keep alive, a procedural score, and a targeting computer you can switch off.">
+<meta name="description" content="A polygon trench run in a single HTML file, opening with a perspective crawl: an X-wing over the battle station surface, TIE fighters, a squadron to keep alive, a procedural score, and a targeting computer you can switch off.">
 <meta name="theme-color" content="#04050a">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Red Five Trench Run">
-<meta property="og:description" content="An on-rails polygon trench run: lit 3D starfighters, radio comms, barrel rolls, and one shot at the exhaust port.">
+<meta property="og:description" content="An on-rails polygon trench run: an opening crawl, lit 3D starfighters, barrel rolls, and one shot at the exhaust port.">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>&#127919;</text></svg>">
 <style>
   html{color-scheme:dark}
@@ -18,13 +18,14 @@
 <title>Red Five Trench Run</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Michroma&family=Saira+Condensed:wght@400;500;600;700&family=Share+Tech+Mono&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=News+Cycle:wght@400;700&family=Saira+Condensed:wght@400;500;600;700&family=Share+Tech+Mono&display=swap">
 <style>
 :root{
   --void:#04050a;
   --deep:#0a0c13;
   --panel:#12141b;
   --line:#262a34;
+  --crawl:#ffe81f;
   --amber:#ffb020;
   --amber-dim:#8a5c14;
   --rebel:#ff3b30;
@@ -32,7 +33,7 @@
   --sys:#6fd8ff;
   --bone:#e9e4d8;
   --bone-dim:#8a8676;
-  --display:"Michroma","Arial Narrow",system-ui,sans-serif;
+  --display:"News Cycle","Arial Narrow","Helvetica Neue",system-ui,sans-serif;
   --ui:"Saira Condensed","Helvetica Neue",system-ui,sans-serif;
   --data:"Share Tech Mono",ui-monospace,"SFMono-Regular",Menlo,monospace;
 }
@@ -52,8 +53,13 @@ body{
 
 /* ---------- masthead ---------- */
 .masthead{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;flex-wrap:wrap}
-.wordmark{font-family:var(--display);font-size:clamp(13px,2.2vw,23px);letter-spacing:.09em;color:var(--bone);line-height:1.1}
-.wordmark span{color:var(--amber)}
+.wordmark{
+  font-family:var(--display);font-weight:700;
+  font-size:clamp(16px,2.7vw,29px);letter-spacing:-.012em;
+  color:var(--crawl);line-height:1;text-transform:uppercase;
+  transform:scaleY(1.14);transform-origin:left bottom;
+}
+.wordmark span{color:var(--bone-dim);font-weight:400}
 .stamp{
   font-family:var(--data);font-size:11px;letter-spacing:.15em;color:var(--bone-dim);
   text-transform:uppercase;display:flex;gap:9px;align-items:center;flex-wrap:wrap;
@@ -85,12 +91,14 @@ body{
 @media (max-width:640px){.screen{aspect-ratio:4/5}}
 canvas{display:block;width:100%;height:100%;touch-action:none}
 .scan{
-  position:absolute;inset:0;pointer-events:none;
+  position:absolute;inset:0;pointer-events:none;transition:opacity .5s;
   background-image:repeating-linear-gradient(to bottom,rgba(0,0,0,.26) 0 1px,transparent 1px 3px);
   mix-blend-mode:multiply;
 }
+.screen.clean .vignette{opacity:.22}
+.screen.clean .scan{opacity:.35}
 .vignette{
-  position:absolute;inset:0;pointer-events:none;
+  position:absolute;inset:0;pointer-events:none;transition:opacity .5s;
   background:radial-gradient(ellipse 84% 80% at 50% 46%,transparent 44%,rgba(2,3,8,.86) 100%);
 }
 
@@ -147,9 +155,12 @@ canvas{display:block;width:100%;height:100%;touch-action:none}
 
 .banner{position:absolute;left:50%;top:32%;transform:translate(-50%,-50%);text-align:center;opacity:0;pointer-events:none}
 .banner.on{animation:bannerIn 2.5s ease-out forwards}
-.banner .b1{font-family:var(--display);font-size:calc(22px * var(--hs));color:var(--amber);letter-spacing:.05em}
+.banner .b1{
+  font-family:var(--display);font-weight:700;font-size:calc(30px * var(--hs));
+  color:var(--crawl);letter-spacing:.01em;text-transform:uppercase;
+}
 .banner .b2{font-family:var(--data);font-size:calc(10px * var(--hs));letter-spacing:.26em;color:var(--bone-dim);margin-top:6px}
-@keyframes bannerIn{0%{opacity:0;letter-spacing:.4em}16%{opacity:1;letter-spacing:.05em}76%{opacity:1}100%{opacity:0}}
+@keyframes bannerIn{0%{opacity:0;transform:translate(-50%,-50%) scale(.86)}16%{opacity:1;transform:translate(-50%,-50%) scale(1)}76%{opacity:1}100%{opacity:0}}
 
 .comms{
   position:absolute;left:50%;bottom:11px;transform:translateX(-50%);
@@ -159,6 +170,13 @@ canvas{display:block;width:100%;height:100%;touch-action:none}
 .comms.on{opacity:1}
 .comms b{display:block;font-size:calc(9px * var(--hs));letter-spacing:.18em;margin-bottom:2px;text-transform:uppercase;color:var(--amber)}
 
+.skip{
+  position:absolute;right:14px;top:12px;
+  font-family:var(--data);font-size:10px;letter-spacing:.2em;color:#6b6555;
+  text-transform:uppercase;opacity:0;transition:opacity .4s;
+}
+.skip.on{opacity:1}
+
 /* ---------- panels ---------- */
 .panel{
   position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
@@ -166,13 +184,17 @@ canvas{display:block;width:100%;height:100%;touch-action:none}
   padding:clamp(14px,4vw,30px);overflow:auto;
 }
 .panel[hidden]{display:none}
-.card{width:min(620px,100%);display:flex;flex-direction:column;gap:clamp(9px,1.6vw,14px)}
+.card{width:min(640px,100%);display:flex;flex-direction:column;gap:clamp(9px,1.6vw,14px)}
 .eyebrow{font-size:9px;letter-spacing:.26em;text-transform:uppercase;color:var(--amber);font-weight:700;display:flex;align-items:center;gap:9px}
 .eyebrow::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,var(--amber-dim),transparent)}
-h1{font-family:var(--display);font-size:clamp(17px,3.3vw,32px);line-height:1.22;margin:0;text-wrap:balance;color:var(--bone)}
-h1 em{font-style:normal;color:var(--amber)}
-.brief{font-size:clamp(12px,1.5vw,15px);line-height:1.62;color:var(--bone-dim);max-width:64ch;margin:0}
-.brief strong{color:var(--bone);font-weight:600}
+h1{
+  font-family:var(--display);font-weight:700;
+  font-size:clamp(23px,4.6vw,46px);line-height:1.06;margin:0;
+  letter-spacing:-.015em;text-transform:uppercase;text-wrap:balance;color:var(--bone);
+}
+h1 em{font-style:normal;color:var(--crawl)}
+.brief{font-family:var(--display);font-size:clamp(13px,1.65vw,16px);line-height:1.58;color:#b9b4a6;max-width:62ch;margin:0}
+.brief strong{color:var(--bone);font-weight:700}
 .keys{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:3px 16px;font-family:var(--data);font-size:11px;color:var(--bone-dim)}
 .keys b{color:var(--amber);font-weight:400}
 .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(94px,1fr));background:#0a0c12;border:1px solid var(--line)}
@@ -181,7 +203,7 @@ h1 em{font-style:normal;color:var(--amber)}
 .stat.hi .n{color:var(--sys)}
 .medal{display:flex;align-items:center;gap:10px;padding:11px 14px;border:1px solid var(--line);background:#0a0c12}
 .medal i{width:26px;height:26px;flex:none;border-radius:50%;box-shadow:inset 0 -6px 10px rgba(0,0,0,.45)}
-.medal .mt{font-family:var(--display);font-size:13px;letter-spacing:.03em}
+.medal .mt{font-family:var(--display);font-weight:700;font-size:15px;letter-spacing:0;text-transform:uppercase}
 .medal .md{font-size:12px;color:var(--bone-dim);line-height:1.35}
 button{
   font-family:var(--ui);font-weight:700;font-size:13px;letter-spacing:.18em;text-transform:uppercase;
@@ -191,6 +213,7 @@ button:hover{background:#ffc44d}
 button:active{transform:translateY(1px)}
 button:focus-visible{outline:2px solid var(--sys);outline-offset:3px}
 .ghost{background:transparent;color:var(--amber);border:1px solid var(--amber-dim)}
+.ghost:hover{background:rgba(255,176,32,.1)}
 .row{display:flex;gap:9px;flex-wrap:wrap;align-items:center}
 .opts{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
 .footnote{font-family:var(--data);font-size:10px;color:#4a4638;letter-spacing:.1em;text-align:center;margin:0}
@@ -219,7 +242,7 @@ body.cinema .footnote{display:none}
 <body>
 <div class="cabinet" id="cabinet">
   <div class="masthead">
-    <div class="wordmark">RED FIVE <span>//</span> TRENCH RUN</div>
+    <div class="wordmark">Red Five <span>//</span> Trench Run</div>
     <div class="stamp">
       <span>Sector <b id="s-sector">SURFACE</b></span>
       <span id="s-state">STANDBY</span>
@@ -227,6 +250,7 @@ body.cinema .footnote{display:none}
       <button class="chip" id="chip-mus" aria-pressed="true">Music</button>
       <button class="chip" id="chip-voice" aria-pressed="true">Comms</button>
       <button class="chip" id="chip-bloom" aria-pressed="true">Bloom</button>
+      <button class="chip" id="chip-crawl" aria-pressed="true">Crawl</button>
       <button class="chip" id="chip-full" aria-pressed="false">Expand</button>
     </div>
   </div>
@@ -270,14 +294,17 @@ body.cinema .footnote{display:none}
         <div class="comms" id="comms"><b></b><span></span></div>
       </div>
 
+      <div class="skip" id="skip">Press any key to skip</div>
+
       <div class="panel" id="p-start">
         <div class="card">
           <div class="eyebrow">Mission Briefing &mdash; Red Squadron</div>
           <h1>The exhaust port is <em>two metres wide</em>. So is the shot.</h1>
           <p class="brief">Come in low across the battle station's surface, hold the equatorial trench when it opens up beneath you, and put a proton torpedo down the thermal exhaust port at the end of the run. Keep the interceptors off Red Two, Red Three and Red Six. Fly through the shield boosters instead of past them, and roll when the green comes at you.</p>
           <div class="opts">
-            <span class="lbl">Difficulty</span>
-            <button class="chip" id="d-std" aria-pressed="true">Standard</button>
+            <span class="lbl">Flight&nbsp;status</span>
+            <button class="chip" id="d-rec" aria-pressed="true">Recruit</button>
+            <button class="chip" id="d-std" aria-pressed="false">Pilot</button>
             <button class="chip" id="d-vet" aria-pressed="false">Ace</button>
           </div>
           <div class="keys">
@@ -911,6 +938,7 @@ var SFX = {
   bomb:    function(){ noise(1.2, 0.5, 700); tone("sine", 110, 26, 1.2, 0.3); },
   torpedo: function(){ tone("sine", 260, 900, 0.55, 0.22); noise(0.3, 0.16, 1800); },
   ding:    function(){ tone("sine", 1500, 1500, 0.07, 0.14); },
+  jump:    function(){ tone("sine", 90, 2400, 0.9, 0.24); noise(1.0, 0.26, 5200); },
   win:     function(){ noise(1.1, 0.42, 1500); tone("sine", 96, 30, 1.4, 0.26); },
   fail:    function(){ tone("sawtooth", 320, 46, 0.95, 0.24); noise(0.7, 0.3, 700); }
 };
@@ -1020,6 +1048,13 @@ function musicStep(step, t){
     mvoice("sawtooth", ch[2], t, 1.1, pv * 0.85, 1450, 2);
     mvoice("sawtooth", ch[3] * 1.003, t, 1.1, pv * 0.7, 1400, 2);
   }
+  /* --- a string bed an octave up, swelling in as the run builds --- */
+  if (s === 0 && (lv > 0.22 || boss)){
+    var sv = 0.055 + lv * 0.05;
+    strings(ch[2] * 2, t, 2.2, sv);
+    strings(ch[3] * 2.006, t, 2.2, sv * 0.8);
+    if (boss) strings(ch[1] * 4, t, 2.2, sv * 0.6);
+  }
 
   /* --- arpeggio, once the run gets going --- */
   if ((lv > 0.32 || boss) && (s & 1) === 0){
@@ -1068,6 +1103,45 @@ function musicStop(fade){
 function musicLevel(v){
   if (AU.ac && AU.mus && MUS.timer) AU.mus.gain.setTargetAtTime(MUS.on ? v : 0, AU.ac.currentTime, 0.25);
 }
+/* a slow bowed layer: two detuned saws with a long attack */
+function strings(f, t, dur, vol){
+  for (var i = 0; i < 2; i++){
+    var o = AU.ac.createOscillator(), g = AU.ac.createGain(), fl = AU.ac.createBiquadFilter();
+    o.type = "sawtooth";
+    o.frequency.setValueAtTime(f * (i ? 1.006 : 0.997), t);
+    fl.type = "lowpass"; fl.Q.value = 0.9;
+    fl.frequency.setValueAtTime(900, t);
+    fl.frequency.linearRampToValueAtTime(2600, t + dur * 0.45);
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.linearRampToValueAtTime(vol, t + dur * 0.35);
+    g.gain.linearRampToValueAtTime(vol * 0.8, t + dur * 0.7);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    o.connect(fl); fl.connect(g); g.connect(AU.mus);
+    o.start(t); o.stop(t + dur + 0.05);
+  }
+}
+
+/* brass fanfares: one on launch, one when the station goes */
+function fanfare(kind){
+  if (!AU.ac || !AU.on || !MUS.on) return;
+  var t = AU.ac.currentTime + 0.03;
+  var seq = kind === "win"
+    ? [[0, 0.17], [7, 0.17], [12, 0.24], [19, 0.30], [24, 0.85]]
+    : [[0, 0.16], [7, 0.16], [12, 0.34]];
+  var base = kind === "win" ? 174.61 : 146.83;
+  var tt = t;
+  for (var i = 0; i < seq.length; i++){
+    var f = base * Math.pow(2, seq[i][0] / 12);
+    brass(f, tt, seq[i][1] * 2.3, 0.30, 4400);
+    brass(f * 0.5, tt, seq[i][1] * 2.3, 0.18, 2200);
+    tt += seq[i][1];
+  }
+  if (kind === "win"){
+    mvoice("sine", 87.31, t, 2.6, 0.34, 300, 1);
+    mnoise(t, 0.5, 0.16, 400);
+  }
+}
+
 /* short musical cues that ride on top of the score */
 function sting(notes, base, dur, type){
   if (!AU.ac || !AU.on || !MUS.on) return;
@@ -1129,6 +1203,7 @@ window.addEventListener("keydown", function(e){
   var k = e.key.toLowerCase();
   if (["arrowup","arrowdown","arrowleft","arrowright"," ","spacebar"].indexOf(k) >= 0) e.preventDefault();
   if (k === "f" && e.shiftKey){ e.preventDefault(); toggleExpand(); return; }
+  if (G.phase === "crawl"){ beginJump(); return; }
   if (k === "escape" && expanded && !document.fullscreenElement){ toggleExpand(); return; }
   if (keys[k]) return;
   keys[k] = true;
@@ -1150,6 +1225,7 @@ window.addEventListener("keyup", function(e){
 window.addEventListener("blur", function(){ keys = Object.create(null); });
 
 cv.addEventListener("pointerdown", function(e){
+  if (G.phase === "crawl"){ beginJump(); return; }
   try { cv.setPointerCapture(e.pointerId); } catch (err){}
   pointer.active = true; movePointer(e);
   keys[" "] = true;
@@ -1167,10 +1243,26 @@ function movePointer(e){
    7 - Game state
    ============================================================ */
 var DIFF = {
-  standard: { shield:100, dmg:1.0, base:250, fire:1.00, lock:0.74, label:"Standard" },
-  ace:      { shield:70,  dmg:1.7, base:300, fire:1.35, lock:0.56, label:"Ace" }
+  recruit:  { shield:160, dmg:0.50, base:205, fire:0.55, lock:1.10, gap:1.55, bolt:320, box:25, inv:1.35, label:"Recruit" },
+  standard: { shield:120, dmg:0.85, base:240, fire:0.85, lock:0.82, gap:1.18, bolt:385, box:20, inv:1.05, label:"Pilot" },
+  ace:      { shield:80,  dmg:1.50, base:300, fire:1.30, lock:0.60, gap:0.88, bolt:455, box:16, inv:0.85, label:"Ace" }
 };
-var diffKey = "standard";
+var diffKey = "recruit";
+var crawlOn = true, crawlSeen = false;
+var CRAWL_STAGGER = 0.38, CRAWL_SPEED = 0.19, CRAWL_TOTAL = 9.8;
+var CRAWL_LINES = [
+  { t:"RED SQUADRON", big:1 },
+  { t:"" },
+  { t:"The rebel fleet has found a flaw" },
+  { t:"in the Imperial battle station: a" },
+  { t:"thermal exhaust port two metres" },
+  { t:"wide, below the main gun." },
+  { t:"" },
+  { t:"Red Five goes in with three proton" },
+  { t:"torpedoes, a squadron that cannot" },
+  { t:"cover him forever, and one pass" },
+  { t:"down the trench..." }
+];
 var BLOOM = CAN_BLOOM;
 var QUALITY = 2;   /* 2 high, 1 medium, 0 low */
 var RUN_LEN = 6200;
@@ -1227,10 +1319,10 @@ function spawnProp(p){
   } else if (kind < 0.62 && G.stage !== "trench"){
     var side = Math.random() < 0.5 ? -1 : 1;
     G.props.push({ kind:"block", x:side * rnd(66, 124), y:GROUND, z:FAR, yaw:rnd(-0.4, 0.4), s:rnd(0.8, 1.5) });
-  } else if (kind < 0.82){
+  } else if (kind < 0.74){
     G.props.push({ kind:"turret", x:rnd(-50, 50), y:GROUND, z:FAR, yaw:0, s:1.3, hp:3, cool:rnd(1, 2.4), dead:0 });
   } else {
-    G.rings3.push({ x:rnd(-30, 30), y:rnd(-20, 12), z:FAR, spin:Math.random() * 6.28, got:0 });
+    G.rings3.push({ x:rnd(-26, 26), y:rnd(-18, 14), z:FAR, spin:Math.random() * 6.28, got:0 });
   }
 }
 function beginApproach(){
@@ -1358,6 +1450,7 @@ function banner(a, b){
 }
 function boom(x, y, z, s){
   G.fx.push({ x:x, y:y, z:z, t:0, life:0.5 + s * 0.05, s:s });
+  if (s >= 2.4) G.fx.push({ x:x, y:y, z:z, t:0, life:0.62, s:s, ring:1 });
   /* throw a few solid fragments so the blast has mass */
   var n = Math.min(9, Math.round(2 + s * 1.6));
   if (G.debris.length > 60) n = 1;
@@ -1465,7 +1558,7 @@ function update(dt){
     G.spawnAcc += G.speed * dt;
     if (G.spawnAcc >= G.spawnGap){
       G.spawnAcc = 0;
-      G.spawnGap = rnd(240, 430) / (1 + p * 0.6);
+      G.spawnGap = rnd(240, 430) * d.gap / (1 + p * 0.6);
       spawnEnemy(p);
     }
     G.propAcc += G.speed * dt;
@@ -1579,7 +1672,7 @@ function update(dt){
     if (pr.kind === "arch" && !pr.hitTested && pr.z <= SHIPZ){
       pr.hitTested = 1;
       /* the pillars are solid; the opening is the middle */
-      if (Math.abs(G.ship.x - pr.x) > 26 * pr.s - 8) hurt(22);
+      if (Math.abs(G.ship.x - pr.x) > 26 * pr.s - 9) hurt(16);
     }
     if (pr.z < -60) G.props.splice(pi, 1);
   }
@@ -1594,7 +1687,7 @@ function update(dt){
       var dx = G.ship.x - rg.x, dy = G.ship.y - rg.y;
       if (dx * dx + dy * dy < 132){
         G.rings++;
-        G.shield = Math.min(G.maxShield, G.shield + 14);
+        G.shield = Math.min(G.maxShield, G.shield + Math.round(G.maxShield * 0.14));
         G.score += 300;
         SFX.ring(); paintShield();
         sparks(rg.x, rg.y, SHIPZ + 8, 12, "127,212,255");
@@ -1690,13 +1783,22 @@ function update(dt){
     kk.t += dt; kk.x += kk.vx * dt; kk.y += kk.vy * dt; kk.z += kk.vz * dt - G.speed * dt * 0.4;
     if (kk.t > kk.life || kk.z < 6) G.sparks.splice(ki, 1);
   }
+  /* a failing deflector trails soot */
+  if (G.shield < G.maxShield * 0.35 && Math.random() < dt * 20){
+    G.sparks.push({
+      x:s.x + rnd(-3, 3), y:s.y + rnd(-2, 2), z:SHIPZ - 6, t:0,
+      life:0.55 + Math.random() * 0.5, rgb:"126,124,120",
+      vx:rnd(-7, 7), vy:rnd(-12, -2), vz:-46
+    });
+  }
+
   G.shake = Math.max(0, G.shake - dt * 2.4);
   G.flash = Math.max(0, G.flash - dt * 2);
   G.hitFlash = Math.max(0, G.hitFlash - dt * 2.6);
 }
 
 function enemyShot(x, y, z, dmgScale){
-  var tz = Math.max(60, z - SHIPZ), sp = 430;
+  var tz = Math.max(60, z - SHIPZ), sp = DIFF[diffKey].bolt;
   G.bolts.push({
     x:x, y:y, z:z,
     vx:(G.ship.x - x) / (tz / sp), vy:(G.ship.y - y) / (tz / sp), vz:-sp,
@@ -1733,7 +1835,7 @@ function hurt(n){
   if (s.inv > 0) return;
   G.shield -= n * DIFF[diffKey].dmg;
   G.combo = 0;
-  s.inv = 0.9;
+  s.inv = DIFF[diffKey].inv;
   G.shake = 1; G.hitFlash = 1;
   SFX.hit();
   sparks(s.x, s.y, SHIPZ + 6, 12, "255,90,60");
@@ -1753,7 +1855,7 @@ function updateApproach(dt, d){
   pt.z -= G.speed * dt;
 
   if (G.computer && !G.fired){
-    var inBox = Math.abs(G.ship.x - pt.x) < 17 && Math.abs(G.ship.y - pt.y) < 15 && pt.z < 900;
+    var inBox = Math.abs(G.ship.x - pt.x) < d.box && Math.abs(G.ship.y - pt.y) < d.box * 0.88 && pt.z < 1000;
     if (inBox){
       var before = G.lock;
       G.lock = Math.min(1, G.lock + dt * d.lock);
@@ -1799,7 +1901,9 @@ function attemptTorpedo(){
   G.fired = true;
   SFX.torpedo();
   var dx = Math.abs(G.ship.x - pt.x), dy = Math.abs(G.ship.y - pt.y);
-  var hit = G.computer ? (G.lock >= 1 && dx < 18 && dy < 16) : (dx < 27 && dy < 24);
+  var bx = DIFF[diffKey].box;
+  var hit = G.computer ? (G.lock >= 1 && dx < bx * 1.06 && dy < bx * 0.94)
+                       : (dx < bx * 1.55 && dy < bx * 1.38);
   G.torpedo = { x:G.ship.x, y:G.ship.y, z:SHIPZ, hit:hit };
 }
 
@@ -1824,6 +1928,7 @@ function finish(kind){
     SFX.win();
     if (G.port) boom(G.port.x, G.port.y, G.port.z, 7);
     G.shake = 1.8; G.flash = 1;
+    setTimeout(function(){ fanfare("win"); }, 550);
     say("Gold Leader", "That is a direct hit. The whole thing is going up. Pull out, Red Five.", true, 0.82);
     musicStop(1.8);
   } else {
@@ -1837,6 +1942,65 @@ function finish(kind){
 /* ============================================================
    11 - Scene drawing
    ============================================================ */
+function drawCrawl(){
+  ctx.fillStyle = "#000";
+  ctx.fillRect(0, 0, W, H);
+  var i;
+  for (i = 0; i < 130; i++){
+    var h1 = hash(i * 11 + 3), h2 = hash(i * 29 + 7), h3 = hash(i * 47 + 13);
+    ctx.fillStyle = "rgba(228,234,246," + (0.18 + h3 * 0.62).toFixed(3) + ")";
+    var d = h3 > 0.9 ? 2 : 1;
+    ctx.fillRect(h1 * W, h2 * H, d, d);
+  }
+
+  var vpY = H * 0.20, baseY = H * 1.07, fs = H * 0.098;
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  for (i = 0; i < CRAWL_LINES.length; i++){
+    var L = CRAWL_LINES[i];
+    if (!L.t) continue;
+    var pr = (G.crawlT - i * CRAWL_STAGGER) * CRAWL_SPEED;
+    if (pr <= 0 || pr >= 1.08) continue;
+    var z = 1 + pr * 5.5;
+    var sc = 1 / z;
+    var y = vpY + (baseY - vpY) * sc;
+    /* fade in as it clears the sill, out as it reaches the vanishing point */
+    var a = 1;
+    if (pr < 0.05) a = pr / 0.05;
+    if (sc < 0.34) a = Math.min(a, Math.max(0, (sc - 0.235) / 0.105));
+    if (a <= 0.01) continue;
+    ctx.font = "700 " + (fs * sc * (L.big ? 1.55 : 1)).toFixed(1) +
+               "px 'News Cycle', 'Arial Narrow', Arial, sans-serif";
+    ctx.fillStyle = "rgba(255,232,31," + a.toFixed(3) + ")";
+    ctx.fillText(L.t, CX, y);
+  }
+  ctx.textBaseline = "alphabetic";
+}
+
+function drawJump(){
+  var pj = Math.min(1, G.jumpT / 1.15);
+  ctx.fillStyle = "#000";
+  ctx.fillRect(0, 0, W, H);
+  var maxR = Math.sqrt(W * W + H * H) * 0.6;
+  ctx.lineCap = "round";
+  for (var i = 0; i < 120; i++){
+    var a = hash(i * 13 + 1) * 6.28318;
+    var r0 = (0.03 + hash(i * 37 + 5) * 0.85) * maxR * (0.25 + pj * 0.9);
+    var len = maxR * (0.015 + pj * pj * 1.5) * (0.35 + hash(i * 53) * 0.95);
+    ctx.strokeStyle = "rgba(214,236,255," + (0.22 + pj * 0.7).toFixed(3) + ")";
+    ctx.lineWidth = 1 + pj * 2.4;
+    ctx.beginPath();
+    ctx.moveTo(CX + Math.cos(a) * r0, CY + Math.sin(a) * r0);
+    ctx.lineTo(CX + Math.cos(a) * (r0 + len), CY + Math.sin(a) * (r0 + len));
+    ctx.stroke();
+  }
+  ctx.lineCap = "butt";
+  if (pj > 0.76){
+    ctx.fillStyle = "rgba(238,246,255," + (((pj - 0.76) / 0.24) * 0.95).toFixed(3) + ")";
+    ctx.fillRect(0, 0, W, H);
+  }
+}
+
 function drawSky(){
   var g = ctx.createLinearGradient(0, 0, 0, Math.max(1, CY + 10));
   g.addColorStop(0, "#010206");
@@ -1891,6 +2055,30 @@ function drawSky(){
   mg.addColorStop(0, "#9aa6b4"); mg.addColorStop(1, "#2c333d");
   ctx.fillStyle = mg;
   ctx.beginPath(); ctx.arc(mw, mh, mr, 0, 6.28318); ctx.fill();
+
+  /* an Imperial cruiser holding station off the port bow */
+  var sdx = CX - W * 0.24 - cam.x * 0.26, sdy = CY - H * 0.155 - cam.y * 0.26;
+  var sw = W * 0.115, sh = H * 0.034;
+  ctx.fillStyle = "#191d26";
+  ctx.beginPath();
+  ctx.moveTo(sdx + sw, sdy + sh * 0.10);
+  ctx.lineTo(sdx - sw, sdy - sh * 0.62);
+  ctx.lineTo(sdx - sw, sdy + sh * 0.92);
+  ctx.closePath();
+  ctx.fill();
+  ctx.fillStyle = "#10131a";
+  ctx.beginPath();
+  ctx.moveTo(sdx + sw, sdy + sh * 0.10);
+  ctx.lineTo(sdx - sw, sdy + sh * 0.92);
+  ctx.lineTo(sdx - sw, sdy + sh * 1.05);
+  ctx.lineTo(sdx + sw * 0.9, sdy + sh * 0.2);
+  ctx.closePath();
+  ctx.fill();
+  ctx.fillStyle = "#232936";
+  ctx.fillRect(sdx - sw * 0.86, sdy - sh * 0.40, sw * 0.26, sh * 0.52);
+  ctx.fillStyle = "rgba(150,205,255,.55)";
+  for (var eg = 0; eg < 3; eg++)
+    ctx.fillRect(sdx - sw * 1.02, sdy - sh * 0.24 + eg * sh * 0.30, sw * 0.07, sh * 0.16);
 
   /* the station's surface running away to the limb */
   ctx.fillStyle = "#1a1d24";
@@ -2076,6 +2264,18 @@ function drawFx(){
     if (F.z < 6) continue;
     var pp = F.t / F.life, kk = FOCAL / F.z;
     var X = pjx(F.x, F.z), Y = pjy(F.y, F.z);
+    if (F.ring){
+      /* a flattened shockwave rolling outward */
+      var sr = (6 + pp * 130) * F.s * kk;
+      if (sr > 1){
+        ctx.strokeStyle = "rgba(255,224,170," + ((1 - pp) * (1 - pp) * 0.6).toFixed(3) + ")";
+        ctx.lineWidth = 3.2 * (1 - pp) + 0.5;
+        ctx.beginPath();
+        ctx.ellipse(X, Y, sr, sr * 0.34, 0, 0, 6.28318);
+        ctx.stroke();
+      }
+      continue;
+    }
     var r = (4 + pp * 16) * F.s * kk;
     if (r < 1) continue;
     var g = ctx.createRadialGradient(X, Y, 0, X, Y, r);
@@ -2301,6 +2501,8 @@ function drawEngines(){
 
 function render(){
   ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+  if (G.phase === "crawl"){ drawCrawl(); return; }
+  if (G.phase === "jump"){ drawJump(); return; }
   drawSky();
   drawGround();
 
@@ -2435,10 +2637,13 @@ function paintHud(){
    13 - Screens
    ============================================================ */
 var MEDALS = {
-  standard: [[42, "Gold", "#ffb020", "Not one interceptor left behind you."],
+  recruit:  [[34, "Gold", "#ffe81f", "Not one interceptor left behind you."],
+             [22, "Silver", "#cdd7e4", "A clean run with a few gaps."],
+             [12, "Bronze", "#c98a4a", "You got through. Fly it again and take more of them."]],
+  standard: [[40, "Gold", "#ffe81f", "Not one interceptor left behind you."],
              [28, "Silver", "#cdd7e4", "A clean run with a few gaps."],
              [16, "Bronze", "#c98a4a", "You got through. Next time, take more of them with you."]],
-  ace:      [[34, "Gold", "#ffb020", "On Ace difficulty. That is a record worth keeping."],
+  ace:      [[32, "Gold", "#ffe81f", "On Ace difficulty. That is a record worth keeping."],
              [22, "Silver", "#cdd7e4", "Ace difficulty and you still cleared the lane."],
              [12, "Bronze", "#c98a4a", "Ace difficulty is unkind. You made it."]]
 };
@@ -2503,12 +2708,13 @@ function refreshBestLine(){
   var b = getBest();
   document.getElementById("best-line").textContent = b ? ("Best " + DIFF[diffKey].label + ": " + b) : "";
 }
+var elSkip = document.getElementById("skip");
+
 function start(){
   audioInit();
   if (AU.ac && AU.ac.state === "suspended") AU.ac.resume();
   droneStart();
   G = newGame();
-  G.phase = "run";
   cam.x = 0; cam.y = -11; cam.roll = 0;
   MUS.mode = "cruise"; MUS.bpm = 142; MUS.level = 0;
   paintShield(); paintBombs(); paintWing();
@@ -2516,9 +2722,37 @@ function start(){
   document.getElementById("p-end").hidden = true;
   document.getElementById("p-pause").hidden = true;
   document.getElementById("lockbar").classList.remove("on");
+  document.getElementById("hud").hidden = true;
+  musicStart();
+  fanfare("intro");
+  last = performance.now();
+  if (crawlOn && !crawlSeen){
+    crawlSeen = true;
+    G.phase = "crawl";
+    G.crawlT = 0;
+    elState.textContent = "BRIEFING";
+    elSkip.classList.add("on");
+    document.getElementById("screen").classList.add("clean");
+  } else {
+    beginJump();
+  }
+}
+
+function beginJump(){
+  G.phase = "jump";
+  G.jumpT = 0;
+  elSkip.classList.remove("on");
+  elState.textContent = "JUMPING IN";
+  SFX.jump();
+}
+
+function beginRun(){
+  G.phase = "run";
+  G.flash = 1.3;
+  document.getElementById("screen").classList.remove("clean");
+  elSkip.classList.remove("on");
   document.getElementById("hud").hidden = false;
   elState.textContent = "IN THE CORRIDOR";
-  musicStart();
   banner("Red Squadron", "Surface run");
   say("Gold Leader", "Red Squadron is in. Stay on the deck and watch each other's tails.", true, 0.82);
   last = performance.now();
@@ -2555,15 +2789,23 @@ chip("chip-voice", true, function(on){
 });
 var bloomChip = chip("chip-bloom", CAN_BLOOM, function(on){ BLOOM = on && CAN_BLOOM; });
 if (!CAN_BLOOM){ BLOOM = false; bloomChip.disabled = true; bloomChip.title = "This browser cannot render the bloom pass"; }
+chip("chip-crawl", true, function(on){
+  crawlOn = on;
+  if (on) crawlSeen = false;   /* turning it back on replays it next launch */
+});
 document.getElementById("chip-full").addEventListener("click", toggleExpand);
 
-var dStd = document.getElementById("d-std"), dVet = document.getElementById("d-vet");
+var dRec = document.getElementById("d-rec"),
+    dStd = document.getElementById("d-std"),
+    dVet = document.getElementById("d-vet");
 function setDiff(k){
   diffKey = k;
+  dRec.setAttribute("aria-pressed", k === "recruit" ? "true" : "false");
   dStd.setAttribute("aria-pressed", k === "standard" ? "true" : "false");
   dVet.setAttribute("aria-pressed", k === "ace" ? "true" : "false");
   refreshBestLine();
 }
+dRec.addEventListener("click", function(){ setDiff("recruit"); });
 dStd.addEventListener("click", function(){ setDiff("standard"); });
 dVet.addEventListener("click", function(){ setDiff("ace"); });
 
@@ -2580,7 +2822,15 @@ function frame(now){
   if (dt > 0.05) dt = 0.05;
   var t0 = performance.now();
 
-  if (G && !G.paused && G.phase !== "idle"){
+  if (G && !G.paused && (G.phase === "crawl" || G.phase === "jump")){
+    if (G.phase === "crawl"){
+      G.crawlT += dt;
+      if (G.crawlT > CRAWL_TOTAL) beginJump();
+    } else {
+      G.jumpT += dt;
+      if (G.jumpT > 1.15) beginRun();
+    }
+  } else if (G && !G.paused && G.phase !== "idle"){
     if (G.phase !== "over") update(dt);
     else {
       G.t += dt;
