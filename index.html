@@ -3,11 +3,11 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="description" content="An arcade polygon trench run in a single HTML file: an opening crawl, a cockpit view, a brass march, X-wings and TIEs, score chains and power-ups, a targeting computer you can switch off, and a run for your life once the shot lands.">
+<meta name="description" content="An arcade polygon trench run in a single HTML file: an opening crawl, a cockpit view, a brass march, a surface gun to bring down, escalating waves, a local score table, and one shot at the exhaust port.">
 <meta name="theme-color" content="#04050a">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Red Five Trench Run">
-<meta property="og:description" content="An arcade on-rails trench run: opening crawl, cockpit view, brass march, score chains, and one shot at the exhaust port.">
+<meta property="og:description" content="An arcade on-rails trench run: opening crawl, cockpit view, brass march, a surface gun to knock down, and one shot at the exhaust port.">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>&#127919;</text></svg>">
 <style>
   html{color-scheme:dark}
@@ -222,6 +222,18 @@ h1 em{font-style:normal;color:var(--crawl)}
 .medal i{width:26px;height:26px;flex:none;border-radius:50%;box-shadow:inset 0 -6px 10px rgba(0,0,0,.45)}
 .medal .mt{font-family:var(--display);font-weight:700;font-size:15px;letter-spacing:0;text-transform:uppercase}
 .medal .md{font-size:12px;color:var(--bone-dim);line-height:1.35}
+.table{display:flex;flex-direction:column;border:1px solid var(--line);background:#0a0c12}
+.trow{
+  display:flex;align-items:baseline;gap:10px;padding:6px 12px;
+  font-family:var(--data);font-size:12px;color:var(--bone-dim);
+  border-bottom:1px solid var(--line);
+}
+.trow:last-child{border-bottom:0}
+.trow span{width:14px;color:#5c5748}
+.trow b{color:var(--amber);font-weight:400;font-variant-numeric:tabular-nums;min-width:64px}
+.trow em{font-style:normal;font-size:11px;letter-spacing:.08em;text-transform:uppercase}
+.trow.you b{color:var(--crawl)}
+.trow.you{background:#12141c}
 button{
   font-family:var(--ui);font-weight:700;font-size:13px;letter-spacing:.18em;text-transform:uppercase;
   color:var(--void);background:var(--amber);border:0;padding:11px 22px;cursor:pointer;transition:background .15s,transform .1s;
@@ -340,6 +352,7 @@ body.cinema .footnote{display:none}
             <button id="btn-start">Cut in the engines</button>
             <span class="lbl" id="best-line"></span>
           </div>
+          <div id="start-table"></div>
         </div>
       </div>
 
@@ -350,7 +363,8 @@ body.cinema .footnote{display:none}
           <p class="brief" id="e-body"></p>
           <div id="e-medal"></div>
           <div class="stats" id="e-stats"></div>
-          <div class="row"><button id="btn-again">Fly it again</button></div>
+          <div id="e-table"></div>
+          <div class="row"><button id="btn-again">Fly it again</button><button class="ghost" id="btn-wave" hidden>Next wave</button></div>
         </div>
       </div>
 
@@ -413,6 +427,7 @@ window.addEventListener("resize", resize);
 
 /* world: x right, y down, z forward */
 var GROUND = 40, FAR = 1600, SHIPZ = 52;
+var TOWER_S = 2.4;   /* the emplacement is drawn and hit-tested at this scale */
 var FOG0 = 260, FOG1 = 1400;
 var LIM_X = 46, LIM_TOP = -30, LIM_BOT = 26;
 var cam = { x:0, y:0, roll:0, kick:0, ox:0, oy:0, rz:0 };
@@ -853,6 +868,21 @@ function buildModels(){
   b.box(-1.1, -5.8, -1.1, 1.1, -5.1, 1.1, 10, 10, 1, 0);
   M.turret = b.build();
 
+  /* ================= surface gun emplacement ================= */
+  b = new Builder();
+  b.box(-26, -14, -26, 26, 0, 26, 13, 9, 0, 1);            /* footing   */
+  b.box(-18, -40, -18, 18, -13, 18, 12, 13, 0, 1);         /* tower     */
+  b.box(-22, -48, -22, 22, -39, 22, 9, 0, 0, 1);           /* gun deck  */
+  for (var gq = -1; gq <= 1; gq += 2){
+    b.box(gq * 11 - 4, -62, -6, gq * 11 + 4, -47, 6, 2, 1, 0, 1);   /* mounts  */
+    b.box(gq * 11 - 2.2, -58, 5, gq * 11 + 2.2, -53, 34, 9, 9, 0, 1); /* barrel */
+    b.box(gq * 11 - 2.8, -58.6, 34, gq * 11 + 2.8, -52.4, 37, 11, 11, 1, 0);
+    b.quad([[gq * 22.2, -46, -18], [gq * 22.2, -46, 18], [gq * 22.2, -43, 18], [gq * 22.2, -43, -18]], 10, 1, 0);
+  }
+  b.box(-7, -70, -7, 7, -60, 7, 12, 9, 0, 1);              /* director  */
+  b.quad([[-5.5, -70.4, -5.5], [5.5, -70.4, -5.5], [5.5, -70.4, 5.5], [-5.5, -70.4, 5.5]], 5, 1, 0);
+  M.tower = b.build();
+
   /* ================= Imperial cruiser ================= */
   b = new Builder();
   b.box(-9, -1.4, -26, 9, 2.6, 4, 9, 0, 0, 1);
@@ -1238,6 +1268,24 @@ function fanfare(kind){
   }
 }
 
+/* a held reprise that sits under the results screen */
+function outro(){
+  if (!AU.ac || !AU.on || !MUS.on) return;
+  AU.mus.gain.cancelScheduledValues(AU.ac.currentTime);
+  AU.mus.gain.setTargetAtTime(MUS_LOUD * 0.6, AU.ac.currentTime, 0.5);
+  var t = AU.ac.currentTime + 0.05;
+  var seq = [CHORD[0], CHORD[2], CHORD[4], CHORD[0]];
+  for (var i = 0; i < seq.length; i++){
+    var ch = seq[i], tt = t + i * 2.6;
+    strings(ch[1] * 2, tt, 2.8, 0.10);
+    strings(ch[2] * 2.005, tt, 2.8, 0.08);
+    strings(ch[3] * 2, tt, 2.8, 0.065);
+    brass(ch[0] * 2, tt, 1.6, 0.09, 1400);
+    mvoice("sine", ch[0] * 0.75, tt, 0.5, 0.22, 280, 1);
+  }
+  setTimeout(function(){ musicStop(2.2); }, 11000);
+}
+
 /* short musical cues that ride on top of the score */
 function sting(notes, base, dur, type){
   if (!AU.ac || !AU.on || !MUS.on) return;
@@ -1345,6 +1393,7 @@ var DIFF = {
   ace:      { shield:80,  dmg:1.50, base:300, fire:1.30, lock:0.60, gap:0.88, bolt:455, box:16, inv:0.85, label:"Ace" }
 };
 var diffKey = "recruit";
+var wave = 1, carried = 0;
 var crawlOn = true, crawlSeen = false, cockpit = false;
 var CRAWL_STAGGER = 0.38, CRAWL_SPEED = 0.19, CRAWL_TOTAL = 9.8;
 var CRAWL_LINES = [
@@ -1373,7 +1422,9 @@ var CALLS = [
 
 function newGame(){
   var d = DIFF[diffKey];
+  var wk = 1 + (wave - 1) * 0.22;         /* each wave leans on you a little harder */
   return {
+    wave:wave, waveK:wk,
     phase:"idle", paused:false, t:0, traveled:0, speed:d.base, baseSpeed:d.base,
     shield:d.shield, maxShield:d.shield, score:0, hits:0, rings:0, saves:0,
     bombs:3, flightTime:0, stage:"surface",
@@ -1388,10 +1439,35 @@ function newGame(){
     debris:[], pops:[], trench:0, fov:1, combo:0, bestCombo:0, freeze:0,
     pow:{ twin:0, rapid:0 },
     port:null, computer:true, lock:0, lockTick:0, fired:false, torpedo:null, cruiserDone:0,
+    tower:null, towerDone:0,
     result:null, said:{}
   };
 }
 function bestKey(){ return "redfive-best-" + diffKey; }
+function tableKey(){ return "redfive-table-" + diffKey; }
+function getTable(){
+  try { return JSON.parse(localStorage.getItem(tableKey()) || "[]") || []; }
+  catch (e){ return []; }
+}
+function addToTable(score, medal, wv){
+  var t = getTable();
+  t.push({ s:score, m:medal, w:wv });
+  t.sort(function(a, b){ return b.s - a.s; });
+  t = t.slice(0, 5);
+  try { localStorage.setItem(tableKey(), JSON.stringify(t)); } catch (e){}
+  return t;
+}
+function tableHtml(t, highlight){
+  if (!t.length) return "";
+  var h = '<div class="table">';
+  for (var i = 0; i < t.length; i++){
+    var hit = highlight != null && t[i].s === highlight;
+    h += '<div class="trow' + (hit ? " you" : "") + '"><span>' + (i + 1) + '</span>' +
+         '<b>' + t[i].s + '</b><em>' + (t[i].m || "\u2014") +
+         (t[i].w > 1 ? " \u00b7 W" + t[i].w : "") + '</em></div>';
+  }
+  return h + "</div>";
+}
 function getBest(){ try { return parseInt(localStorage.getItem(bestKey()) || "0", 10) || 0; } catch (e){ return 0; } }
 function setBest(v){ try { localStorage.setItem(bestKey(), String(v)); } catch (e){} }
 
@@ -1433,6 +1509,7 @@ function spawnProp(p){
 }
 function beginApproach(){
   G.stage = "approach";
+  G.tower = null;
   G.port = { x:rnd(-22, 22), y:rnd(8, 19), z:FAR * 0.95 };
   G.computer = true; G.lock = 0; G.fired = false; G.torpedo = null;
   G.enemies = G.enemies.filter(function(e){ return !e.dead; });
@@ -1508,6 +1585,7 @@ function dropBomb(){
     var p = G.props[i];
     if (p.kind === "turret" && !p.dead && p.z < 700){ p.dead = 1; G.score += 150; boom(p.x, p.y - 6, p.z, 2.2); }
   }
+  if (G.tower && !G.tower.dead && G.tower.z < 760) hurtTower(26);
   boom(G.ship.x, G.ship.y, SHIPZ + 220, 9);
 }
 function togglePause(){
@@ -1697,11 +1775,21 @@ function update(dt){
     G.spawnAcc += G.speed * dt;
     if (G.spawnAcc >= G.spawnGap){
       G.spawnAcc = 0;
-      G.spawnGap = rnd(240, 430) * d.gap / (1 + p * 0.6);
+      G.spawnGap = rnd(240, 430) * d.gap / ((1 + p * 0.6) * G.waveK);
       spawnEnemy(p);
     }
     G.propAcc += G.speed * dt;
     if (G.propAcc >= 190){ G.propAcc = 0; spawnProp(p); }
+
+    /* the emplacement guarding the trench mouth */
+    if (!G.towerDone && p > 0.36){
+      G.towerDone = 1;
+      G.tower = { x:rnd(-14, 14), y:GROUND, z:FAR, hold:500, hp:100, maxhp:100,
+                  t:0, cool:1.2, dead:0, timer:24 };
+      banner("Surface Gun", "Knock it down or run the gauntlet");
+      say("Gold Leader", "Heavy emplacement covering the trench mouth. Put it down if you can.", true, 0.82);
+      document.getElementById("lockbar").classList.add("on");
+    }
 
     /* a cruiser crosses the lane once, part way through the surface run */
     if (!G.cruiserDone && p > 0.24){
@@ -1787,7 +1875,7 @@ function update(dt){
       e.roll = -Math.cos(e.t * 1.3) * (e.fast ? 0.8 : 0.5);
       e.cool -= dt;
       if (e.cool <= 0 && e.z > SHIPZ + 60 && e.z < 700){
-        e.cool = rnd(0.9, 2.1) / d.fire;
+        e.cool = rnd(0.9, 2.1) / (d.fire * G.waveK);
         if (e.big){
           enemyShot(e.x - 9, e.y, e.z, 1.1);
           enemyShot(e.x + 9, e.y, e.z, 1.1);
@@ -1815,7 +1903,7 @@ function update(dt){
     if (pr.kind === "turret" && !pr.dead){
       pr.cool -= dt;
       if (pr.cool <= 0 && pr.z > SHIPZ + 60 && pr.z < 620){
-        pr.cool = rnd(1.4, 3) / d.fire;
+        pr.cool = rnd(1.4, 3) / (d.fire * G.waveK);
         enemyShot(pr.x + (pr.wall ? -pr.wall * 5 : 0), pr.wall ? pr.y : pr.y - 6, pr.z, 0.9);
       }
     }
@@ -1857,6 +1945,9 @@ function update(dt){
     if (rg.z < -40) G.rings3.splice(ri, 1);
   }
 
+  /* --- the emplacement --- */
+  if (G.tower) updateTower(dt, d);
+
   /* --- the run in --- */
   if (G.port) updateApproach(dt, d);
 
@@ -1892,6 +1983,11 @@ function update(dt){
         if (tp.hp <= 0){ tp.dead = 1; G.score += 150; G.hits++; boom(tp.x, tpy, tp.z, 2.2); SFX.boom(); }
         killed = 1;
       }
+    }
+    if (!killed && G.tower && !G.tower.dead && Math.abs(sh.z - G.tower.z) < 40 * TOWER_S &&
+        Math.abs(sh.x - G.tower.x) < 24 * TOWER_S && sh.y < GROUND - 4 && sh.y > GROUND - 70 * TOWER_S){
+      hurtTower(sh.charged ? 9 : 1.6);
+      killed = 1;
     }
     if (!killed && G.port && Math.abs(sh.z - G.port.z) < 26 &&
         Math.abs(sh.x - G.port.x) < 26 && Math.abs(sh.y - G.port.y) < 26){
@@ -1950,12 +2046,19 @@ function update(dt){
     kk.t += dt; kk.x += kk.vx * dt; kk.y += kk.vy * dt; kk.z += kk.vz * dt - G.speed * dt * 0.4;
     if (kk.t > kk.life || kk.z < 6) G.sparks.splice(ki, 1);
   }
-  /* a failing deflector trails soot */
+  /* a failing deflector trails soot, and a hit wing throws sparks */
   if (G.shield < G.maxShield * 0.35 && Math.random() < dt * 20){
     G.sparks.push({
       x:s.x + rnd(-3, 3), y:s.y + rnd(-2, 2), z:SHIPZ - 6, t:0,
       life:0.55 + Math.random() * 0.5, rgb:"126,124,120",
       vx:rnd(-7, 7), vy:rnd(-12, -2), vz:-46
+    });
+  }
+  if (G.shield < G.maxShield * 0.22 && Math.random() < dt * 26){
+    G.sparks.push({
+      x:s.x - 9.5, y:s.y + 4.2, z:SHIPZ - 4, t:0,
+      life:0.3 + Math.random() * 0.3, rgb:"255,168,70",
+      vx:rnd(-14, -2), vy:rnd(-6, 8), vz:-70
     });
   }
 
@@ -2107,7 +2210,7 @@ function finish(kind){
     G.phase = "escape";
     G.escapeT = 0;
     G.stage = "escape";
-    G.score += 8000 + Math.round(G.shield * 40) + G.saves * 1200 + G.bombs * 900;
+    G.score += (8000 + Math.round(G.shield * 40) + G.saves * 1200 + G.bombs * 900) * G.waveK;
     if (!G.computer) G.score += 6000;
     SFX.win();
     if (G.port) boom(G.port.x, G.port.y, G.port.z, 7);
@@ -2126,6 +2229,61 @@ function finish(kind){
     musicStop(0.5);
   }
   setTimeout(showEnd, 1300);
+}
+
+function updateTower(dt, d){
+  var tw = G.tower;
+  tw.t += dt;
+  if (tw.dead > 0){
+    tw.dead -= dt;
+    tw.z -= G.speed * dt;
+    if (Math.random() < dt * 20)
+      boom(tw.x + rnd(-24, 24) * TOWER_S, GROUND - rnd(6, 62) * TOWER_S, tw.z + rnd(-20, 20) * TOWER_S, rnd(2, 4.4));
+    if (tw.dead <= 0 || tw.z < -60){ G.tower = null; document.getElementById("lockbar").classList.remove("on"); }
+    return;
+  }
+
+  tw.timer -= dt;
+  if (tw.timer > 0) tw.z += (tw.hold - tw.z) * Math.min(1, dt * 0.55);
+  else tw.z -= G.speed * dt;          /* it falls behind if you never killed it */
+
+  tw.cool -= dt;
+  if (tw.cool <= 0 && tw.z > SHIPZ + 120){
+    tw.cool = rnd(1.1, 2.0) / d.fire;
+    /* the heavy pair, aimed where you are rather than where you were */
+    for (var g = -1; g <= 1; g += 2)
+      enemyShot(tw.x + g * 11 * TOWER_S, GROUND - 55 * TOWER_S, tw.z + 34 * TOWER_S, 1.5);
+  }
+  paintTower();
+
+  /* it is a building: run into it and you will know */
+  if (tw.pz === undefined) tw.pz = tw.z;
+  if (tw.pz > SHIPZ && tw.z <= SHIPZ){
+    if (Math.abs(G.ship.x - tw.x) < 20 * TOWER_S && G.ship.y > GROUND - 70 * TOWER_S) hurt(26);
+  }
+  tw.pz = tw.z;
+
+  if (tw.z < -60){ G.tower = null; document.getElementById("lockbar").classList.remove("on"); }
+}
+
+function hurtTower(n){
+  var tw = G.tower;
+  if (!tw || tw.dead > 0) return;
+  tw.hp -= n;
+  sparks(tw.x + rnd(-16, 16) * TOWER_S, GROUND - rnd(20, 60) * TOWER_S, tw.z, 5, "255,190,48");
+  paintTower();
+  if (tw.hp <= 0){
+    tw.hp = 0; paintTower();
+    tw.dead = 1.9;
+    G.hits++;
+    G.score += 4000;
+    pop(tw.x, GROUND - 46 * TOWER_S, tw.z, "+4000", "255,232,31", 1);
+    boom(tw.x, GROUND - 40 * TOWER_S, tw.z, 8);
+    SFX.bigboom();
+    G.shake = 1.5;
+    camPunch(0.07, 0, 8, 0);
+    say("Red Three", "Emplacement is down. That is the trench mouth clear.", true, 0.74);
+  }
 }
 
 /* the run out: still a flight, not a cutscene - you can steer */
@@ -2218,6 +2376,7 @@ function updateEscape(dt){
     droneLevel(0);
     musicStop(1.4);
     setTimeout(function(){ fanfare("win"); }, 250);
+    setTimeout(outro, 2100);
     setTimeout(showEnd, 1400);
   }
 }
@@ -2852,6 +3011,7 @@ function renderScene(){
   for (i = 0; i < G.props.length; i++)
     if (G.props[i].kind === "cruiser") groundShadow(G.props[i].x, G.props[i].y, G.props[i].z, 90);
   if (G.port) groundShadow(G.port.x, G.port.y, G.port.z, 30);
+  if (G.tower) groundShadow(G.tower.x, GROUND, G.tower.z, 30 * TOWER_S);
 
   /* props */
   for (i = 0; i < G.props.length; i++){
@@ -2885,6 +3045,8 @@ function renderScene(){
   }
   /* the exhaust port, set into the trench floor */
   if (G.port) pushModel(M.port, G.port.x, G.port.y, G.port.z, 0, 0, 0, 1);
+  if (G.tower) pushModel(M.tower, G.tower.x, G.tower.y, G.tower.z, 0, 0, 0, TOWER_S,
+                         G.tower.dead > 0 ? [70, 62, 58] : null);
   /* tumbling wreckage */
   for (i = 0; i < G.debris.length; i++){
     var db = G.debris[i];
@@ -2893,7 +3055,8 @@ function renderScene(){
   /* the player last so it sorts against everything else */
   var s = G.ship;
   if (!cockpit && !(s.inv > 0 && ((s.inv * 22) | 0) % 2 === 0))
-    pushModel(M.player, s.x, s.y, SHIPZ, 0, s.pitch, s.bank + s.roll, 1);
+    pushModel(M.player, s.x, s.y, SHIPZ, 0, s.pitch, s.bank + s.roll, 1,
+              G.shield < G.maxShield * 0.22 ? [84, 74, 66] : null);
 
   flushFaces();
 }
@@ -3038,6 +3201,15 @@ function paintWing(){
   }
   elWing.innerHTML = h;
 }
+function paintTower(){
+  var tw = G.tower;
+  if (!tw) return;
+  elLockG.style.width = Math.max(0, tw.hp / tw.maxhp * 100) + "%";
+  elLockBar.classList.remove("ready");
+  elLockLbl.textContent = tw.dead > 0 ? "Emplacement destroyed"
+    : "Surface gun \u2014 shield " + Math.round(tw.hp) + "%";
+}
+
 function paintLock(){
   if (!G.port) return;
   var locked = G.lock >= 1;
@@ -3058,7 +3230,7 @@ function paintHud(){
   var rem = G.port ? Math.max(0, G.port.z - SHIPZ) : Math.max(0, RUN_LEN - G.traveled);
   elDist.textContent = String(Math.round(rem)).padStart(4, "0");
   elThrottle.style.width = Math.min(100, G.speed / (G.baseSpeed * 1.5) * 100) + "%";
-  elSector.textContent = G.stage.toUpperCase();
+  elSector.textContent = G.stage.toUpperCase() + (G.wave > 1 ? " / W" + G.wave : "");
 
   if (G.wingDirty && G.t - (G.wingPainted || 0) > 0.18){ G.wingPainted = G.t; G.wingDirty = 0; paintWing(); }
 
@@ -3134,6 +3306,9 @@ function showEnd(){
       '<div class="md">' + med[3] + '</div></div></div>'
     : "";
   document.getElementById("e-stats").innerHTML = html;
+  var tbl = addToTable(score, med ? med[1] : (win ? "None" : "\u2014"), G.wave);
+  document.getElementById("e-table").innerHTML = tableHtml(tbl, score);
+  document.getElementById("btn-wave").hidden = !win;
   document.getElementById("p-end").hidden = false;
   elState.textContent = win ? "TARGET DESTROYED" : (G.result === "down" ? "SHIP LOST" : "RUN FAILED");
   document.getElementById("btn-again").focus();
@@ -3141,6 +3316,9 @@ function showEnd(){
 function refreshBestLine(){
   var b = getBest();
   document.getElementById("best-line").textContent = b ? ("Best " + DIFF[diffKey].label + ": " + b) : "";
+  var t = getTable();
+  document.getElementById("start-table").innerHTML = t.length
+    ? '<div class="lbl" style="margin-bottom:5px">Top runs</div>' + tableHtml(t, null) : "";
 }
 var elSkip = document.getElementById("skip");
 
@@ -3149,6 +3327,7 @@ function start(){
   if (AU.ac && AU.ac.state === "suspended") AU.ac.resume();
   droneStart();
   G = newGame();
+  G.score = carried;
   cam.x = 0; cam.y = -11; cam.roll = 0;
   MUS.mode = "cruise"; MUS.bpm = 132; MUS.level = 0;
   paintShield(); paintBombs(); paintWing();
@@ -3187,13 +3366,17 @@ function beginRun(){
   elSkip.classList.remove("on");
   document.getElementById("hud").hidden = false;
   elState.textContent = "IN THE CORRIDOR";
-  banner("Red Squadron", "Surface run");
+  banner(G.wave > 1 ? "Wave " + G.wave : "Red Squadron",
+         G.wave > 1 ? "They are ready for you this time" : "Surface run");
   say("Gold Leader", "Red Squadron is in. Stay on the deck and watch each other's tails.", true, 0.82);
   last = performance.now();
 }
 
 document.getElementById("btn-start").addEventListener("click", start);
-document.getElementById("btn-again").addEventListener("click", start);
+document.getElementById("btn-again").addEventListener("click", function(){ wave = 1; carried = 0; start(); });
+document.getElementById("btn-wave").addEventListener("click", function(){
+  wave++; carried = Math.round(G.score); start();
+});
 document.getElementById("btn-resume").addEventListener("click", togglePause);
 
 function chip(id, initial, fn){
@@ -3343,6 +3526,7 @@ G.phase = "idle";
 cam.y = -11;
 refreshBestLine();
 requestAnimationFrame(frame);
+
 })();
 </script>
 </body>

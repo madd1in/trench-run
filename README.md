@@ -7,7 +7,7 @@ An on-rails polygon trench run in a single HTML file. It opens with a perspectiv
 No build step, no dependencies, no asset files. One `index.html`:
 
 - a small **flat-shaded 3D pipeline** written from scratch on Canvas 2D — model transforms, perspective projection, painter's-algorithm depth sorting, back-face culling, directional light with a bounce fill, a Blinn specular term and a camera-facing term, emissive faces, projected ground shadows, tumbling debris and distance fog
-- a **procedural score** written as a heroic march: brass melody in octaves over a B flat major progression with modal mixture, horns holding the harmony, a string bed that swells with the run, timpani rolls into each four-bar phrase, march snare and cymbal swells, with a tighter minor progression for the run in, a separate faster progression with a driving kick for the run out, snare fills closing each four-bar phrase, low brass under the melody once things are serious, and brass fanfares on launch and on the kill. Original composition — no film melody is reproduced.
+- a **procedural score** written as a heroic march: brass melody in octaves over a B flat major progression with modal mixture, horns holding the harmony, a string bed that swells with the run, timpani rolls into each four-bar phrase, march snare and cymbal swells, with a held string reprise under the results screen, a tighter minor progression for the run in, a separate faster progression with a driving kick for the run out, snare fills closing each four-bar phrase, low brass under the melody once things are serious, and brass fanfares on launch and on the kill. Original composition — no film melody is reproduced.
 - **radio comms** through the Web Speech API, with subtitles when no voice is installed
 - an **opening crawl** rendered in perspective on the canvas, then a hyperspace entry
 
@@ -43,9 +43,11 @@ On a touchscreen: drag anywhere to fly, and holding also fires.
 - **The run out.** The hit is not the end of the mission. The station starts coming apart and you have about six seconds to climb away from it, still flying, while the blast washes in from the rim of the frame.
 - **Fly it from the seat.** `V` drops you inside the canopy: the ship disappears, the view locks to the airframe and rolls fully with a barrel roll, and the frame, struts and dash lip sit between you and the trench.
 - **A cruiser crosses the lane** part way through the surface run, low enough to fill the sky.
+- **A surface gun guards the trench mouth.** A stepped emplacement with twin heavy barrels rises off the deck and holds station ahead of you with its own shield bar. Bring it down for four thousand, or run the gauntlet and let it fall behind — but do not fly into it.
 - **Close calls pay.** Thread a gantry with metres to spare, or let a TIE go past close, and it prints a bonus.
 - **Chains and power-ups.** Consecutive kills print their score at the kill and climb in pitch; every third one calls the chain. Bombers drop twin lasers, rapid fire or a shield top-up, each running fourteen seconds.
 - **Medals.** Bronze, Silver or Gold on the kill count. Gold on Ace is the one worth having.
+- **Waves.** Finishing offers the next wave rather than just a restart: the same run with denser spawns and faster guns, and your score carried forward. The top five runs per flight status are kept locally with their medal and wave.
 
 Three flight statuses. **Recruit** is the default and is meant to be finished: a bigger deflector, slower and less frequent enemy fire, a wider lock box and a much more forgiving torpedo. **Pilot** is the old Standard. **Ace** is unkind.
 
