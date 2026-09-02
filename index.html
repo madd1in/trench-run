@@ -3,11 +3,11 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="description" content="A polygon trench run in a single HTML file, opening with a perspective crawl: an X-wing over the battle station surface, TIE fighters, a squadron to keep alive, a procedural score, and a targeting computer you can switch off.">
+<meta name="description" content="A polygon trench run in a single HTML file, opening with a perspective crawl: an X-wing over the battle station surface, TIE fighters, a squadron to keep alive, a targeting computer you can switch off, and a run for your life once the shot lands.">
 <meta name="theme-color" content="#04050a">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Red Five Trench Run">
-<meta property="og:description" content="An on-rails polygon trench run: an opening crawl, lit 3D starfighters, barrel rolls, and one shot at the exhaust port.">
+<meta property="og:description" content="An on-rails polygon trench run: an opening crawl, lit 3D starfighters, barrel rolls, one shot at the exhaust port, and a very fast climb out.">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>&#127919;</text></svg>">
 <style>
   html{color-scheme:dark}
@@ -44,12 +44,24 @@ body{
   font-family:var(--ui);
   min-height:100vh;
   display:flex;align-items:center;justify-content:center;
-  padding:clamp(10px,2.4vw,30px);
+  padding:clamp(8px,1.2vw,18px);
   background-image:
     radial-gradient(ellipse 80% 55% at 50% 0%, #0d1018 0%, transparent 68%),
     radial-gradient(ellipse 70% 50% at 50% 108%, #1b1408 0%, transparent 70%);
 }
-.cabinet{width:100%;max-width:1180px;display:flex;flex-direction:column;gap:12px}
+/* the view is bounded by aspect at both ends rather than by a pixel width:
+   never wider than 2.15:1, never taller than about 1:0.78 */
+.cabinet{
+  width:100%;
+  max-width:calc((100vh - 104px) * 2.15);
+  max-width:calc((100dvh - 104px) * 2.15);
+  height:calc(100vh - 2 * clamp(8px,1.2vw,18px));
+  height:calc(100dvh - 2 * clamp(8px,1.2vw,18px));
+  max-height:calc(100vw * 0.78 + 104px);
+  display:flex;flex-direction:column;gap:9px;
+}
+.bezel{flex:1;min-height:0;display:flex}
+.screen{flex:1;min-height:0}
 
 /* ---------- masthead ---------- */
 .masthead{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;flex-wrap:wrap}
@@ -87,8 +99,13 @@ body{
 }
 .bezel::before{left:-1px;top:-1px;border-right:0;border-bottom:0}
 .bezel::after{right:-1px;bottom:-1px;border-left:0;border-top:0}
-.screen{position:relative;width:100%;aspect-ratio:16/9;background:#03040a;overflow:hidden;--hs:1}
-@media (max-width:640px){.screen{aspect-ratio:4/5}}
+.screen{position:relative;width:100%;background:#03040a;overflow:hidden;--hs:1}
+@media (max-width:760px){
+  /* on a phone the page scrolls again and the view takes a portrait frame */
+  .cabinet{height:auto;max-width:none}
+  .bezel{display:block}
+  .screen{aspect-ratio:4/5}
+}
 canvas{display:block;width:100%;height:100%;touch-action:none}
 .scan{
   position:absolute;inset:0;pointer-events:none;transition:opacity .5s;
@@ -765,6 +782,22 @@ function buildModels(){
   b.quad([[-1.9, 2.22, 1.2], [1.9, 2.22, 1.2], [1.9, 2.22, 2.4], [-1.9, 2.22, 2.4]], 2, 0, 0);
   M.enemy = b.build();
 
+  /* ================= interceptor ================= */
+  b = new Builder();
+  for (var ip = -1; ip <= 1; ip += 2){
+    hexPanel(b, ip * 8.0, 0, 0, 2.9, 6.6, 0.28, 7, 1);
+    /* the swept blade that gives it away at a glance */
+    b.quad([[ip * 10.9, -6.6, -0.3], [ip * 15.2, -2.2, -0.3], [ip * 14.6, -1.6, -0.3], [ip * 10.6, -5.9, -0.3]], 8, 0, 0);
+    b.quad([[ip * 10.6, 5.9, 0.3], [ip * 14.6, 1.6, 0.3], [ip * 15.2, 2.2, 0.3], [ip * 10.9, 6.6, 0.3]], 8, 0, 0);
+    b.quad([[ip * 8.0 - 0.5, -6.6, -0.32], [ip * 8.0 + 0.5, -6.6, -0.32],
+            [ip * 8.0 + 0.5,  6.6, -0.32], [ip * 8.0 - 0.5,  6.6, -0.32]], 8, 0, 0);
+    b.box(ip * 3.6 - 0.85, -0.6, -0.6, ip * 3.6 + 0.85, 0.6, 0.6, 8, 8, 0, 1);
+  }
+  b.box(-2.0, -2.0, -2.2, 2.0, 2.0, 2.3, 7, 0, 0, 1);
+  b.quad([[-1.4, -1.4, 2.34], [1.4, -1.4, 2.34], [1.4, 1.4, 2.34], [-1.4, 1.4, 2.34]], 12, 0, 0);
+  b.quad([[-0.88, -0.88, 2.38], [0.88, -0.88, 2.38], [0.88, 0.88, 2.38], [-0.88, 0.88, 2.38]], 11, 1, 0);
+  M.interceptor = b.build();
+
   /* ================= TIE bomber ================= */
   b = new Builder();
   hexPanel(b, -9.6, 0, 0, 4.8, 7.4, 0.36, 7, 1);
@@ -1304,12 +1337,13 @@ function pick(a){ return a[Math.floor(Math.random() * a.length)]; }
    8 - Spawning
    ============================================================ */
 function spawnEnemy(p){
-  var big = p > 0.3 && Math.random() < 0.18;
+  var big = p > 0.3 && Math.random() < 0.16;
+  var fast = !big && p > 0.35 && Math.random() < 0.26;
   G.enemies.push({
     x:rnd(-40, 40), y:rnd(-26, 18), z:FAR * 0.85,
     vx:0, vy:0, hp:big ? 6 : 2, t:Math.random() * 6.28, yaw:0, roll:0,
-    cool:rnd(0.6, 1.6), dead:0, big:big,
-    mode:big ? "weave" : (Math.random() < 0.3 ? "chase" : "weave")
+    cool:rnd(0.6, 1.6), dead:0, big:big, fast:fast,
+    mode:big ? "weave" : (Math.random() < (fast ? 0.55 : 0.3) ? "chase" : "weave")
   });
 }
 function spawnProp(p){
@@ -1320,7 +1354,14 @@ function spawnProp(p){
     var side = Math.random() < 0.5 ? -1 : 1;
     G.props.push({ kind:"block", x:side * rnd(66, 124), y:GROUND, z:FAR, yaw:rnd(-0.4, 0.4), s:rnd(0.8, 1.5) });
   } else if (kind < 0.74){
-    G.props.push({ kind:"turret", x:rnd(-50, 50), y:GROUND, z:FAR, yaw:0, s:1.3, hp:3, cool:rnd(1, 2.4), dead:0 });
+    if (G.stage === "trench" && Math.random() < 0.62){
+      /* bracketed off the trench wall, firing across the lane */
+      var wsd = Math.random() < 0.5 ? -1 : 1;
+      G.props.push({ kind:"turret", wall:wsd, x:wsd * 51, y:rnd(-46, 4), z:FAR,
+                     yaw:0, s:1.15, hp:3, cool:rnd(1, 2.2), dead:0 });
+    } else {
+      G.props.push({ kind:"turret", x:rnd(-50, 50), y:GROUND, z:FAR, yaw:0, s:1.3, hp:3, cool:rnd(1, 2.4), dead:0 });
+    }
   } else {
     G.rings3.push({ x:rnd(-26, 26), y:rnd(-18, 14), z:FAR, spin:Math.random() * 6.28, got:0 });
   }
@@ -1628,16 +1669,17 @@ function update(dt){
       e.yaw = Math.sin(e.t * 3) * 0.2;
     } else {
       if (e.mode === "tail"){ e.mode = "weave"; e.cool = 1; }
-      e.z -= G.speed * 0.55 * dt;
+      e.z -= G.speed * (e.fast ? 0.78 : 0.55) * dt;
       if (e.mode === "chase"){
-        e.x += (G.ship.x - e.x) * Math.min(1, dt * 0.7);
-        e.y += (G.ship.y - e.y) * Math.min(1, dt * 0.7);
+        var pull = e.fast ? 1.15 : 0.7;
+        e.x += (G.ship.x - e.x) * Math.min(1, dt * pull);
+        e.y += (G.ship.y - e.y) * Math.min(1, dt * pull);
       } else {
-        e.x += Math.cos(e.t * 1.3) * 26 * dt;
-        e.y += Math.sin(e.t * 0.9) * 14 * dt;
+        e.x += Math.cos(e.t * (e.fast ? 2.0 : 1.3)) * (e.fast ? 40 : 26) * dt;
+        e.y += Math.sin(e.t * (e.fast ? 1.4 : 0.9)) * (e.fast ? 22 : 14) * dt;
       }
-      e.yaw = Math.sin(e.t * 1.3) * 0.35;
-      e.roll = -Math.cos(e.t * 1.3) * 0.5;
+      e.yaw = Math.sin(e.t * 1.3) * (e.fast ? 0.5 : 0.35);
+      e.roll = -Math.cos(e.t * 1.3) * (e.fast ? 0.8 : 0.5);
       e.cool -= dt;
       if (e.cool <= 0 && e.z > SHIPZ + 60 && e.z < 700){
         e.cool = rnd(0.9, 2.1) / d.fire;
@@ -1666,7 +1708,7 @@ function update(dt){
       pr.cool -= dt;
       if (pr.cool <= 0 && pr.z > SHIPZ + 60 && pr.z < 620){
         pr.cool = rnd(1.4, 3) / d.fire;
-        enemyShot(pr.x, pr.y - 6, pr.z, 0.9);
+        enemyShot(pr.x + (pr.wall ? -pr.wall * 5 : 0), pr.wall ? pr.y : pr.y - 6, pr.z, 0.9);
       }
     }
     if (pr.kind === "arch" && !pr.hitTested && pr.z <= SHIPZ){
@@ -1724,10 +1766,11 @@ function update(dt){
     for (var pj = 0; pj < G.props.length && !killed; pj++){
       var tp = G.props[pj];
       if (tp.kind !== "turret" || tp.dead) continue;
-      if (Math.abs(sh.z - tp.z) < 34 && Math.abs(sh.x - tp.x) < 9 && Math.abs(sh.y - (tp.y - 6)) < 9){
+      var tpy = tp.wall ? tp.y : tp.y - 6;
+      if (Math.abs(sh.z - tp.z) < 34 && Math.abs(sh.x - tp.x) < 10 && Math.abs(sh.y - tpy) < 10){
         tp.hp -= sh.charged ? 5 : 1;
-        sparks(tp.x, tp.y - 6, tp.z, 4, "255,176,32");
-        if (tp.hp <= 0){ tp.dead = 1; G.score += 150; G.hits++; boom(tp.x, tp.y - 6, tp.z, 2.2); SFX.boom(); }
+        sparks(tp.x, tpy, tp.z, 4, "255,176,32");
+        if (tp.hp <= 0){ tp.dead = 1; G.score += 150; G.hits++; boom(tp.x, tpy, tp.z, 2.2); SFX.boom(); }
         killed = 1;
       }
     }
@@ -1819,7 +1862,7 @@ function hurtEnemy(e, n){
       sting([0, 7, 12, 16], 220, 0.06);
       say("Red Six", G.combo >= 10 ? "You are cleaning house out there, Red Five." : "Nice shot.", false, 1.16);
     }
-    G.score += (e.mode === "tail" ? 800 : e.big ? 600 : 200) * (1 + Math.min(4, G.combo / 5));
+    G.score += (e.mode === "tail" ? 800 : e.big ? 600 : e.fast ? 380 : 200) * (1 + Math.min(4, G.combo / 5));
     boom(e.x, e.y, e.z, e.big ? 4 : 2.4);
     sparks(e.x, e.y, e.z, e.big ? 26 : 16, "255,150,80");
     SFX.boom();
@@ -1918,25 +1961,146 @@ function toggleComputer(){
 }
 
 function finish(kind){
-  G.phase = "over";
   G.result = kind;
-  droneLevel(0);
   document.getElementById("lockbar").classList.remove("on");
   if (kind === "hit"){
+    /* the shot lands, and then you have a station coming apart behind you */
+    G.phase = "escape";
+    G.escapeT = 0;
+    G.stage = "escape";
     G.score += 8000 + Math.round(G.shield * 40) + G.saves * 1200 + G.bombs * 900;
     if (!G.computer) G.score += 6000;
     SFX.win();
     if (G.port) boom(G.port.x, G.port.y, G.port.z, 7);
     G.shake = 1.8; G.flash = 1;
-    setTimeout(function(){ fanfare("win"); }, 550);
-    say("Gold Leader", "That is a direct hit. The whole thing is going up. Pull out, Red Five.", true, 0.82);
-    musicStop(1.8);
-  } else {
+    MUS.mode = "final"; MUS.bpm = 178;
+    elState.textContent = "GET CLEAR";
+    banner("Get Clear", "She is going to blow");
+    say("Gold Leader", "Direct hit! Pull out, Red Five, the whole thing is going up!", true, 0.82);
+    return;
+  }
+  G.phase = "over";
+  droneLevel(0);
+  {
     SFX.fail();
     say("Gold Leader", "Red Five is down. Break off, break off.", true, 0.82);
     musicStop(0.5);
   }
-  setTimeout(showEnd, kind === "hit" ? 2000 : 1300);
+  setTimeout(showEnd, 1300);
+}
+
+/* the run out: still a flight, not a cutscene - you can steer */
+function updateEscape(dt){
+  var s = G.ship, e = (G.escapeT += dt), i;
+
+  var ax = 0, ay = 0;
+  if (keys["arrowleft"] || keys["a"]) ax -= 1;
+  if (keys["arrowright"] || keys["d"]) ax += 1;
+  if (keys["arrowup"] || keys["w"]) ay -= 1;
+  if (keys["arrowdown"] || keys["s"]) ay += 1;
+  if (pointer.active){
+    ax += Math.max(-1, Math.min(1, pointer.x * 2.4));
+    ay += Math.max(-1, Math.min(1, pointer.y * 2.4));
+  }
+  s.vx += ax * 200 * dt; s.vy += ay * 200 * dt;
+  s.vx -= s.vx * 4.6 * dt; s.vy -= s.vy * 4.6 * dt;
+  s.x += s.vx * dt; s.y += s.vy * dt;
+  s.x = Math.max(-42, Math.min(42, s.x));
+  /* climbing off the deck whatever the pilot does */
+  s.y += (-28 - s.y) * Math.min(1, dt * 0.5);
+  s.bank += ((-s.vx / 58) * 0.62 - s.bank) * Math.min(1, dt * 8);
+  s.pitch += (-0.18 - s.pitch) * Math.min(1, dt * 1.1);
+  s.roll = 0;
+
+  G.speed += (G.baseSpeed * 3.6 - G.speed) * Math.min(1, dt * 0.9);
+  G.traveled += G.speed * dt;
+  G.trench = Math.max(0, G.trench - dt * 0.30);
+  G.fov += (1.18 - G.fov) * Math.min(1, dt * 1.4);
+  FOCAL = FOCAL_BASE / G.fov;
+  G.boosting = true;
+
+  cam.x += (s.x * 0.55 - cam.x) * Math.min(1, dt * 6);
+  cam.y += ((s.y * 0.40 - 11) - cam.y) * Math.min(1, dt * 6);
+  cam.roll += (Math.sin(e * 2.6) * 0.09 - cam.roll) * Math.min(1, dt * 4);
+  G.shake = Math.min(1.7, 0.35 + e * 0.24);
+  droneLevel(0.16);
+
+  if (Math.random() < dt * (11 + e * 8))
+    boom(rnd(-105, 105), rnd(-48, 44), rnd(230, 980), rnd(1.4, 4.6));
+
+  for (i = G.props.length - 1; i >= 0; i--){
+    G.props[i].z -= G.speed * dt;
+    if (G.props[i].z < -60) G.props.splice(i, 1);
+  }
+  for (i = G.enemies.length - 1; i >= 0; i--){
+    G.enemies[i].z -= G.speed * 0.6 * dt;
+    if (G.enemies[i].z < -60) G.enemies.splice(i, 1);
+  }
+  for (i = G.rings3.length - 1; i >= 0; i--){
+    G.rings3[i].z -= G.speed * dt;
+    if (G.rings3[i].z < -40) G.rings3.splice(i, 1);
+  }
+  G.bolts.length = 0;
+  if (G.port){ G.port.z -= G.speed * dt; if (G.port.z < -90) G.port = null; }
+  for (i = G.shots.length - 1; i >= 0; i--){
+    G.shots[i].z += 900 * dt;
+    if (G.shots[i].z > FAR) G.shots.splice(i, 1);
+  }
+  for (i = G.fx.length - 1; i >= 0; i--){
+    var F = G.fx[i]; F.t += dt; F.z -= G.speed * dt * 0.4;
+    if (F.t > F.life) G.fx.splice(i, 1);
+  }
+  for (i = G.sparks.length - 1; i >= 0; i--){
+    var S = G.sparks[i];
+    S.t += dt; S.x += S.vx * dt; S.y += S.vy * dt; S.z += S.vz * dt - G.speed * dt * 0.4;
+    if (S.t > S.life || S.z < 6) G.sparks.splice(i, 1);
+  }
+  for (i = G.debris.length - 1; i >= 0; i--){
+    var db = G.debris[i];
+    db.t += dt; db.vy += 52 * dt;
+    db.x += db.vx * dt; db.y += db.vy * dt; db.z += db.vz * dt - G.speed * dt;
+    db.rx += db.wx * dt; db.ry += db.wy * dt; db.rz += db.wz * dt;
+    if (db.t > db.life || db.z < 8) G.debris.splice(i, 1);
+  }
+  G.flash = Math.max(0, G.flash - dt * 2);
+  G.hitFlash = Math.max(0, G.hitFlash - dt * 2.6);
+
+  if (e > 5.9){
+    G.phase = "over";
+    droneLevel(0);
+    musicStop(1.4);
+    setTimeout(function(){ fanfare("win"); }, 250);
+    setTimeout(showEnd, 1400);
+  }
+}
+
+/* the blast overtaking you, washing in from the rim of the frame */
+function drawEscape(){
+  var e = G.escapeT, pe = Math.min(1, e / 5.4);
+  var inner = Math.max(1, Math.min(W, H) * (0.66 - pe * 0.54));
+  var g = ctx.createRadialGradient(CX, CY, inner, CX, CY, Math.max(W, H) * 0.86);
+  g.addColorStop(0, "rgba(255,180,90,0)");
+  g.addColorStop(0.55, "rgba(255,146,58," + (pe * 0.34).toFixed(3) + ")");
+  g.addColorStop(1, "rgba(255,238,196," + (pe * 0.88).toFixed(3) + ")");
+  ctx.fillStyle = g;
+  ctx.fillRect(0, 0, W, H);
+
+  ctx.strokeStyle = "rgba(255,226,172," + (0.10 + pe * 0.32).toFixed(3) + ")";
+  ctx.lineWidth = 1.7;
+  var span = Math.min(W, H);
+  for (var i = 0; i < 44; i++){
+    var a = hash(i * 71 + ((e * 9) | 0)) * 6.28318;
+    var r0 = span * (0.20 + hash(i * 17) * 0.52);
+    var r1 = r0 + span * (0.13 + pe * 0.55);
+    ctx.beginPath();
+    ctx.moveTo(CX + Math.cos(a) * r0, CY + Math.sin(a) * r0);
+    ctx.lineTo(CX + Math.cos(a) * r1, CY + Math.sin(a) * r1);
+    ctx.stroke();
+  }
+  if (e > 5.05){
+    ctx.fillStyle = "rgba(255,249,238," + Math.min(1, (e - 5.05) / 0.85).toFixed(3) + ")";
+    ctx.fillRect(0, 0, W, H);
+  }
 }
 
 /* ============================================================
@@ -2432,7 +2596,8 @@ function renderScene(){
     var pr = G.props[i];
     if (pr.kind === "block") pushModel(M.block, pr.x, pr.y, pr.z, pr.yaw, 0, 0, pr.s);
     else if (pr.kind === "arch") pushModel(M.arch, pr.x, pr.y, pr.z, 0, 0, 0, pr.s);
-    else if (pr.kind === "turret" && !pr.dead) pushModel(M.turret, pr.x, pr.y, pr.z, 0, 0, 0, pr.s);
+    else if (pr.kind === "turret" && !pr.dead)
+      pushModel(M.turret, pr.x, pr.y, pr.z, 0, 0, pr.wall ? pr.wall * 1.5708 : 0, pr.s);
   }
   /* rings */
   for (i = 0; i < G.rings3.length; i++){
@@ -2449,7 +2614,8 @@ function renderScene(){
   for (i = 0; i < G.enemies.length; i++){
     var e = G.enemies[i];
     if (e.dead) continue;
-    pushModel(e.big ? M.bomber : M.enemy, e.x, e.y, e.z, e.yaw, 0, e.roll, e.big ? 1.25 : 1,
+    pushModel(e.big ? M.bomber : (e.fast ? M.interceptor : M.enemy),
+              e.x, e.y, e.z, e.yaw, 0, e.roll, e.big ? 1.25 : 1,
               e.flash > 0 ? [255, 246, 235] : null);
   }
   /* the exhaust port, set into the trench floor */
@@ -2568,6 +2734,7 @@ function render(){
     ctx.fillStyle = "rgba(255,230,190," + (G.flash * 0.5).toFixed(3) + ")";
     ctx.fillRect(0, 0, W, H);
   }
+  if (G.phase === "escape") drawEscape();
 }
 
 /* ============================================================
@@ -2666,7 +2833,7 @@ function showEnd(){
       ? (alive === 3 ? "All four of you came <em>home</em>." : "Direct hit.")
       : "You switched it <em>off</em>. And you still hit it.";
     b.textContent = !G.computer
-      ? "No lock, no readout, no computer. Just the shot. Nobody is going to believe the telemetry."
+      ? "No lock, no readout, no computer. Just the shot, and a very fast climb out. Nobody is going to believe the telemetry."
       : (alive === 3
         ? "The torpedo went straight down the shaft and not one of your squadron is missing. That does not happen often."
         : "The station is gone. It cost you " + (3 - alive) + " of the squadron, and they knew the odds when they launched.");
@@ -2831,7 +2998,8 @@ function frame(now){
       if (G.jumpT > 1.15) beginRun();
     }
   } else if (G && !G.paused && G.phase !== "idle"){
-    if (G.phase !== "over") update(dt);
+    if (G.phase === "escape") updateEscape(dt);
+    else if (G.phase !== "over") update(dt);
     else {
       G.t += dt;
       G.shake = Math.max(0, G.shake - dt * 2);

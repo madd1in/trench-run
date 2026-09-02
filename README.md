@@ -34,17 +34,21 @@ On a touchscreen: drag anywhere to fly, and holding also fires.
 
 - **Surface, then trench, then the port.** The trench walls close in around you as you drop into it, and the gantries inside are solid — the gap is between the pillars.
 - **Your squadron.** Red Two, Red Three and Red Six fly ahead of you and can be tailed by an interceptor. Shoot it off them before their shield runs out, or you finish the mission alone.
+- **Three kinds of TIE.** The standard fighter, a bomber that takes six hits and fires in pairs, and a bent-wing interceptor that closes faster and weaves harder. Wall guns bracket off the trench sides once you are down in it.
 - **Shield boosters** patch a seventh of your deflector. Fly through the middle.
 - **Barrel roll** deflects incoming fire. It answers a wall of green; it does not answer a gantry.
 - **Three proton torpedoes, and they are the same three.** The salvo on `B` draws from the tubes you need at the end. Spend them all on TIEs and you will reach the port with nothing to shoot it with.
 - **The targeting computer** builds a lock while you hold the port inside the brackets. Or press `F`, switch it off, and take the shot yourself — the tolerance is wider without it, and it is worth six thousand more.
+- **The run out.** The hit is not the end of the mission. The station starts coming apart and you have about six seconds to climb away from it, still flying, while the blast washes in from the rim of the frame.
 - **Medals.** Bronze, Silver or Gold on the kill count. Gold on Ace is the one worth having.
 
 Three flight statuses. **Recruit** is the default and is meant to be finished: a bigger deflector, slower and less frequent enemy fire, a wider lock box and a much more forgiving torpedo. **Pilot** is the old Standard. **Ace** is unkind.
 
-## Fullscreen
+## Filling the screen
 
-Expanding goes edge to edge: no frame, no masthead, no page chrome. The controls fade back in when you move the pointer. The HUD scales with the viewport, and the field of view is fitted to whichever axis is tighter — so an ultrawide display shows more of the corridor instead of cropping the sky.
+The windowed layout is sized by the viewport rather than by a fixed card: the view grows to fill the window and is bounded by **aspect at both ends** — never wider than 2.15:1, never taller than about 1:0.78 — so it neither becomes a letterbox slit on an ultrawide nor a tower on a portrait window. On a typical landscape window the canvas covers roughly three quarters of the viewport, against about two fifths for the old fixed-width 16:9 card.
+
+Expanding goes further: edge to edge, no frame, no masthead, no page chrome, with the controls fading back in when you move the pointer. The HUD scales with the viewport, and the field of view is fitted to whichever axis is tighter — so an ultrawide display shows more of the corridor instead of cropping the sky.
 
 ## Performance
 
