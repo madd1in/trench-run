@@ -7,7 +7,7 @@ An on-rails polygon trench run in a single HTML file. It opens with a perspectiv
 No build step, no dependencies, no asset files. One `index.html`:
 
 - a small **flat-shaded 3D pipeline** written from scratch on Canvas 2D — model transforms, perspective projection, painter's-algorithm depth sorting, back-face culling, directional light with a bounce fill, a Blinn specular term and a camera-facing term, emissive faces, projected ground shadows, tumbling debris and distance fog
-- a **procedural score** — an eight-bar chord cycle with timpani, snare, bass ostinato, pad, arpeggio and a brass lead through a dotted-eighth feedback delay, plus a separate progression for the run in
+- a **procedural score** written as a heroic march: brass melody in octaves over a B flat major progression with modal mixture, horns holding the harmony, a string bed that swells with the run, timpani rolls into each four-bar phrase, march snare and cymbal swells, with a tighter minor progression for the run in and brass fanfares on launch and on the kill. Original composition — no film melody is reproduced.
 - **radio comms** through the Web Speech API, with subtitles when no voice is installed
 - an **opening crawl** rendered in perspective on the canvas, then a hyperspace entry
 
@@ -40,9 +40,14 @@ On a touchscreen: drag anywhere to fly, and holding also fires.
 - **Three proton torpedoes, and they are the same three.** The salvo on `B` draws from the tubes you need at the end. Spend them all on TIEs and you will reach the port with nothing to shoot it with.
 - **The targeting computer** builds a lock while you hold the port inside the brackets. Or press `F`, switch it off, and take the shot yourself — the tolerance is wider without it, and it is worth six thousand more.
 - **The run out.** The hit is not the end of the mission. The station starts coming apart and you have about six seconds to climb away from it, still flying, while the blast washes in from the rim of the frame.
+- **Chains and power-ups.** Consecutive kills print their score at the kill and climb in pitch; every third one calls the chain. Bombers drop twin lasers, rapid fire or a shield top-up, each running fourteen seconds.
 - **Medals.** Bronze, Silver or Gold on the kill count. Gold on Ace is the one worth having.
 
 Three flight statuses. **Recruit** is the default and is meant to be finished: a bigger deflector, slower and less frequent enemy fire, a wider lock box and a much more forgiving torpedo. **Pilot** is the old Standard. **Ace** is unkind.
+
+## Feel
+
+The camera is not just a follow. Every kill lands a small punch, a hit lands a big one, launching the torpedo pushes it back, and a barrel roll rolls the whole view with the ship. Kills also stop the frame for about forty milliseconds, which is what gives a hit its weight. Boost widens the field of view; the brake narrows it.
 
 ## Filling the screen
 

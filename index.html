@@ -3,11 +3,11 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="description" content="A polygon trench run in a single HTML file, opening with a perspective crawl: an X-wing over the battle station surface, TIE fighters, a squadron to keep alive, a targeting computer you can switch off, and a run for your life once the shot lands.">
+<meta name="description" content="An arcade polygon trench run in a single HTML file: an opening crawl, a brass march, X-wings and TIEs, score chains and power-ups, a targeting computer you can switch off, and a run for your life once the shot lands.">
 <meta name="theme-color" content="#04050a">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Red Five Trench Run">
-<meta property="og:description" content="An on-rails polygon trench run: an opening crawl, lit 3D starfighters, barrel rolls, one shot at the exhaust port, and a very fast climb out.">
+<meta property="og:description" content="An arcade on-rails trench run: opening crawl, brass march, score chains, power-ups and one shot at the exhaust port.">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>&#127919;</text></svg>">
 <style>
   html{color-scheme:dark}
@@ -413,7 +413,14 @@ window.addEventListener("resize", resize);
 var GROUND = 40, FAR = 1600, SHIPZ = 52;
 var FOG0 = 260, FOG1 = 1400;
 var LIM_X = 46, LIM_TOP = -30, LIM_BOT = 26;
-var cam = { x:0, y:0, roll:0 };
+var cam = { x:0, y:0, roll:0, kick:0, ox:0, oy:0, rz:0 };
+/* one call for every punch the camera should take */
+function camPunch(k, ox, oy, rz){
+  cam.kick += k || 0;
+  cam.ox += ox || 0;
+  cam.oy += oy || 0;
+  cam.rz += rz || 0;
+}
 
 /* ============================================================
    2 - Flat-shaded polygon pipeline
@@ -428,15 +435,15 @@ var MAT = [
   [222,218,206], /*0  hull light   */
   [160,155,140], /*1  hull mid     */
   [ 88, 85, 76], /*2  hull dark    */
-  [216, 53, 42], /*3  squadron red */
+  [236, 58, 44], /*3  squadron red */
   [138, 31, 24], /*4  red deep     */
-  [127,212,255], /*5  canopy       */
+  [140,224,255], /*5  canopy       */
   [159,216,255], /*6  engine glow  */
   [139,146,156], /*7  imperial grey*/
   [ 51, 57, 65], /*8  imperial dark*/
   [122,127,136], /*9  metal        */
-  [255,176, 32], /*10 lamp amber   */
-  [255, 59, 48], /*11 hot red      */
+  [255,190, 48], /*10 lamp amber   */
+  [255, 72, 56], /*11 hot red      */
   [ 34, 37, 44], /*12 dark panel   */
   [ 78, 83, 92], /*13 station grey */
   [242,239,230]  /*14 white hot    */
@@ -595,7 +602,7 @@ function pushModel(mo, ox, oy, oz, yaw, pitch, roll, scale, tint, dim){
 
     var m = MAT[fd[1]], sh;
     if (fd[2]){
-      sh = 1.18;                                  /* emissive faces ignore the lights */
+      sh = 1.22;                                  /* emissive faces ignore the lights */
     } else {
       /* uncullable meshes can still present a back face; flip it to face us */
       var na = a3, nb = b2, nc = c3;
@@ -977,31 +984,36 @@ var SFX = {
 };
 
 /* --- procedural score: sectioned, layered, mixed to sit in front --- */
-var MUS = { timer:null, next:0, step:0, bpm:142, mode:"cruise", level:0, on:true };
+var MUS = { timer:null, next:0, step:0, bpm:132, mode:"cruise", level:0, on:true };
 var MUS_LOUD = 1.40, MUS_DUCK = 0.78;
 
 /* [bass, octave, third, fifth] */
+/* [bass, octave, third, fifth] - B flat major with modal mixture */
 var CHORD = [
-  [55.00, 110.00, 130.81, 164.81], /* 0 Am */
-  [49.00,  98.00, 123.47, 146.83], /* 1 G  */
-  [43.65,  87.31, 110.00, 130.81], /* 2 F  */
-  [41.20,  82.41,  98.00, 123.47], /* 3 Em */
-  [36.71,  73.42,  87.31, 110.00], /* 4 Dm */
-  [32.70,  65.41,  82.41,  98.00], /* 5 C  */
-  [58.27, 116.54, 146.83, 174.61]  /* 6 Bb */
+  [58.27, 116.54, 146.83, 174.61], /* 0 Bb  I    */
+  [49.00,  98.00, 116.54, 146.83], /* 1 Gm  vi   */
+  [38.89,  77.78,  98.00, 116.54], /* 2 Eb  IV   */
+  [43.65,  87.31, 110.00, 130.81], /* 3 F   V    */
+  [51.91, 103.83, 130.81, 155.56], /* 4 Ab  bVII */
+  [32.70,  65.41,  77.78,  98.00], /* 5 Cm  ii   */
+  [36.71,  73.42,  87.31, 110.00]  /* 6 Dm  iii  */
 ];
 var PROG = {
-  cruise: [0, 5, 2, 1, 0, 5, 3, 4],
-  final:  [4, 6, 5, 1, 4, 6, 2, 0]
+  cruise: [0, 1, 2, 3, 0, 4, 2, 3],
+  final:  [5, 4, 2, 0, 5, 4, 3, 0]
 };
 /* semitone offsets above the octave root; 0 is a rest */
 var LEAD = {
-  a:    [12, 0, 0, 10,  0, 12, 0, 15,  0, 0, 10, 0, 12, 0,  7, 0],
-  b:    [ 0,15, 0,  0, 17,  0,19, 0,  15, 0,  0,12,  0,10,  0,12],
-  c:    [19, 0, 0, 17,  0, 15, 0, 12,   0,15,  0,17,  0, 0, 19, 0],
-  final:[12, 0, 7,  0, 12,  0,15, 0,  17, 0, 15,12,  0,10,  7, 0]
+  /* the call: octave leap, held, then a rising answer */
+  a:    [12, 0, 0, 0,  12, 0,19, 0,   0, 0,17, 0,  19, 0, 0, 0],
+  /* the answer, a fifth higher and pushing on */
+  b:    [ 0, 0,19, 0,  17, 0,19, 0,  24, 0, 0, 0,   0,19,17, 0],
+  /* horn counter-line under the second half */
+  c:    [ 0, 0, 7, 0,   5, 0, 7, 0,  12, 0, 0, 0,   0, 7, 5, 0],
+  /* the run in: tighter, more urgent, same shape */
+  final:[12, 0,12, 0,  15, 0,17, 0,  19, 0,17,15,  12, 0, 0, 0]
 };
-var ARP = [0, 7, 12, 16, 19, 16, 12, 7];
+var ARP = [0, 7, 12, 19, 24, 19, 12, 7];
 
 function mvoice(type, freq, t, dur, vol, cut, res, send){
   var o = AU.ac.createOscillator(), g = AU.ac.createGain(), f = AU.ac.createBiquadFilter();
@@ -1058,59 +1070,65 @@ function musicStep(step, t){
   var lv = MUS.level;
   var half = bar >= 4;
 
-  /* --- drums --- */
+  /* --- timpani and march snare --- */
   var kick = boss ? [1,0,0,0, 0,0,1,0, 1,0,0,1, 0,0,1,0] : [1,0,0,0, 0,0,1,0, 1,0,0,0, 0,1,0,0];
-  if (kick[s]){ mvoice("sine", 118, t, 0.18, 0.72, 340, 1); mnoise(t, 0.045, 0.22, 220); }
-  if (s === 4 || s === 12){                       /* snare */
-    mnoise(t, 0.16, 0.34, 1900, 1);
-    mvoice("triangle", 210, t, 0.1, 0.24, 2400, 1);
-    if (boss) mnoise(t + 0.09, 0.09, 0.12, 2200, 1);
+  if (kick[s]){
+    mvoice("sine", ch[0] * 0.75, t, 0.30, 0.62, 300, 1);
+    mnoise(t, 0.06, 0.13, 240);
   }
-  if (s % 2 === 1) mnoise(t, 0.026, 0.10 + lv * 0.05, 8200, 1);
-  if (s === 14 && half) mnoise(t, 0.05, 0.16, 6000, 1);
+  /* a timpani roll into every four-bar phrase */
+  if ((bar & 3) === 3 && s >= 12){
+    mvoice("sine", ch[0] * 0.75, t, 0.09, 0.20 + (s - 12) * 0.06, 320, 1);
+  }
+  if (s === 4 || s === 12){
+    mnoise(t, 0.15, 0.30, 2000, 1);
+    mvoice("triangle", 205, t, 0.09, 0.22, 2400, 1);
+  }
+  if (s % 2 === 1) mnoise(t, 0.024, 0.075 + lv * 0.04, 8400, 1);
+  /* cymbal swell opening each phrase */
+  if (s === 0 && (bar & 3) === 0) mnoise(t, 0.55, 0.14, 7000, 1);
 
-  /* --- bass --- */
-  var bp = boss ? [1,1,0,1, 1,0,1,1, 1,1,0,1, 1,0,1,1] : [1,0,1,1, 0,1,0,1, 1,0,1,0, 1,1,0,1];
-  if (bp[s]) mvoice("sawtooth", ch[0], t, 0.155, 0.46 + lv * 0.10, 780 + lv * 1100, 7);
-  if (s === 0) mvoice("square", ch[0], t, 0.5, 0.20, 420, 2);
+  /* --- bass, walking rather than pumping --- */
+  var bp = boss ? [1,0,1,0, 1,0,1,1, 1,0,1,0, 1,1,0,1] : [1,0,0,0, 1,0,0,1, 1,0,0,0, 1,0,1,0];
+  if (bp[s]) mvoice("sawtooth", ch[0], t, 0.20, 0.44 + lv * 0.08, 700 + lv * 900, 6);
+  if (s === 0) mvoice("square", ch[0] * 0.5, t, 0.55, 0.20, 380, 2);
 
-  /* --- pad --- */
+  /* --- horns holding the harmony --- */
   if (s === 0 || s === 8){
-    var pv = 0.13 + lv * 0.05;
-    mvoice("sawtooth", ch[1], t, 1.1, pv, 1500, 2);
-    mvoice("sawtooth", ch[2], t, 1.1, pv * 0.85, 1450, 2);
-    mvoice("sawtooth", ch[3] * 1.003, t, 1.1, pv * 0.7, 1400, 2);
+    var pv = 0.10 + lv * 0.04;
+    brass(ch[1], t, 0.95, pv, 1700);
+    brass(ch[2], t, 0.95, pv * 0.72, 1600);
   }
-  /* --- a string bed an octave up, swelling in as the run builds --- */
-  if (s === 0 && (lv > 0.22 || boss)){
-    var sv = 0.055 + lv * 0.05;
-    strings(ch[2] * 2, t, 2.2, sv);
-    strings(ch[3] * 2.006, t, 2.2, sv * 0.8);
-    if (boss) strings(ch[1] * 4, t, 2.2, sv * 0.6);
-  }
-
-  /* --- arpeggio, once the run gets going --- */
-  if ((lv > 0.32 || boss) && (s & 1) === 0){
-    var an = ARP[(step >> 1) & 7];
-    mvoice("square", ch[1] * Math.pow(2, an / 12), t, 0.11, 0.085, 3400, 1.2);
+  /* --- strings above, swelling with the run --- */
+  if (s === 0 && (lv > 0.18 || boss)){
+    var sv = 0.06 + lv * 0.055;
+    strings(ch[2] * 2, t, 2.3, sv);
+    strings(ch[3] * 2.006, t, 2.3, sv * 0.8);
+    if (boss) strings(ch[1] * 4, t, 2.3, sv * 0.55);
   }
 
-  /* --- lead --- */
+  /* --- arpeggio, once things are moving --- */
+  if ((lv > 0.36 || boss) && (s & 1) === 0){
+    mvoice("square", ch[1] * Math.pow(2, ARP[(step >> 1) & 7] / 12), t, 0.10, 0.062, 3600, 1.2);
+  }
+
+  /* --- the melody, brass in octaves --- */
   var pat = boss ? LEAD.final : (half ? LEAD.b : LEAD.a);
   var semi = pat[s];
-  if (semi && (lv > 0.14 || boss)){
+  if (semi && (lv > 0.10 || boss)){
     var f0 = ch[1] * Math.pow(2, semi / 12);
-    brass(f0, t, boss ? 0.26 : 0.30, 0.26, 3400);
+    brass(f0, t, boss ? 0.30 : 0.36, 0.30, 3600);
+    brass(f0 * 0.5, t, boss ? 0.30 : 0.36, 0.17, 2000);
   }
-  /* a counter-line in the second half once the run is well under way */
-  if (!boss && lv > 0.55 && half){
+  /* the counter-line answers underneath in the second half */
+  if (!boss && lv > 0.5 && half){
     var cs = LEAD.c[s];
-    if (cs) mvoice("triangle", ch[1] * Math.pow(2, cs / 12) * 0.5, t, 0.28, 0.11, 2200, 1.4, 1);
+    if (cs) brass(ch[1] * Math.pow(2, cs / 12) * 0.5, t, 0.30, 0.12, 1900);
   }
-  /* timpani on the downbeat */
-  if (s === 0){ mvoice("sine", ch[0] * 0.75, t, 0.42, 0.30, 260, 1); mnoise(t, 0.09, 0.10, 300); }
-  if (boss && s === 15) brass(ch[1] * 2, t, 0.2, 0.16, 4200);
+  /* a pick-up into the top of the form */
+  if (s === 15 && bar === 7) brass(ch[3] * 2, t, 0.16, 0.20, 4200);
 }
+
 function musicTick(){
   if (!AU.ac || !AU.on || !MUS.on) return;
   var spb = 60 / MUS.bpm / 4, guard = 0;
@@ -1159,8 +1177,8 @@ function fanfare(kind){
   if (!AU.ac || !AU.on || !MUS.on) return;
   var t = AU.ac.currentTime + 0.03;
   var seq = kind === "win"
-    ? [[0, 0.17], [7, 0.17], [12, 0.24], [19, 0.30], [24, 0.85]]
-    : [[0, 0.16], [7, 0.16], [12, 0.34]];
+    ? [[0, 0.15], [7, 0.15], [12, 0.22], [12, 0.11], [14, 0.11], [16, 0.22], [19, 0.28], [24, 0.95]]
+    : [[0, 0.13], [0, 0.07], [7, 0.20], [12, 0.40]];
   var base = kind === "win" ? 174.61 : 146.83;
   var tt = t;
   for (var i = 0; i < seq.length; i++){
@@ -1170,8 +1188,12 @@ function fanfare(kind){
     tt += seq[i][1];
   }
   if (kind === "win"){
-    mvoice("sine", 87.31, t, 2.6, 0.34, 300, 1);
-    mnoise(t, 0.5, 0.16, 400);
+    mvoice("sine", 87.31, t, 2.8, 0.34, 300, 1);
+    mnoise(t, 0.6, 0.18, 400);
+    strings(349.23, t + 0.9, 2.4, 0.10);
+    strings(523.25 * 1.004, t + 0.9, 2.4, 0.075);
+  } else {
+    mnoise(t, 0.35, 0.12, 5000, 1);
   }
 }
 
@@ -1321,7 +1343,8 @@ function newGame(){
       { c:CALLS[2], hp:100, x:2,   y:-16, z:210, t:4, alive:true, chased:0, said:0 }
     ],
     spawnAcc:0, spawnGap:280, propAcc:0, shake:0, flash:0, hitFlash:0,
-    debris:[], trench:0, fov:1, combo:0, bestCombo:0,
+    debris:[], pops:[], trench:0, fov:1, combo:0, bestCombo:0, freeze:0,
+    pow:{ twin:0, rapid:0 },
     port:null, computer:true, lock:0, lockTick:0, fired:false, torpedo:null,
     result:null, said:{}
   };
@@ -1372,7 +1395,7 @@ function beginApproach(){
   G.computer = true; G.lock = 0; G.fired = false; G.torpedo = null;
   G.enemies = G.enemies.filter(function(e){ return !e.dead; });
   banner("Final Approach", "Thermal exhaust port dead ahead");
-  MUS.mode = "final"; MUS.bpm = 150;
+  MUS.mode = "final"; MUS.bpm = 146;
   document.getElementById("lockbar").classList.add("on");
   if (G.bombs > 0)
     say("Gold Leader", "There it is. Everything you have left, Red Five.", true, 0.82);
@@ -1387,9 +1410,11 @@ function fireLaser(){
   var s = G.ship;
   if (G.stage === "approach" && !G.fired && G.port && G.port.z < 820){ attemptTorpedo(); return; }
   if (s.cool > 0) return;
-  s.cool = 0.11;
+  s.cool = G.pow.rapid > 0 ? 0.062 : 0.11;
   for (var i = -1; i <= 1; i += 2){
     G.shots.push({ x:s.x + i * 5.2, y:s.y - 0.4, z:SHIPZ + 4, vx:i * -2.2, vy:0, charged:0, life:1.2 });
+    if (G.pow.twin > 0)
+      G.shots.push({ x:s.x + i * 10.5, y:s.y + 0.6, z:SHIPZ + 4, vx:i * -5.0, vy:0, charged:0, life:1.2 });
   }
   SFX.laser();
 }
@@ -1419,6 +1444,7 @@ function barrelRoll(dir){
   var s = G.ship;
   if (s.rollT > 0 || G.phase !== "run") return;
   s.rollT = 0.62; s.rollDir = dir;
+  camPunch(0.05, dir * -10, 0, 0);
   SFX.roll();
 }
 function dropBomb(){
@@ -1489,6 +1515,13 @@ function banner(a, b){
   el.querySelector(".b2").textContent = b;
   el.classList.remove("on"); void el.offsetWidth; el.classList.add("on");
 }
+function pop(x, y, z, text, col, big){
+  if (G.pops.length > 26) G.pops.shift();
+  /* jitter so two kills in the same instant do not print on top of each other */
+  G.pops.push({ x:x + rnd(-5, 5), y:y + rnd(-4, 4), z:z + rnd(-14, 14),
+                t:0, life:0.95, text:text, col:col || "255,232,31", s:big ? 1.5 : 1 });
+}
+
 function boom(x, y, z, s){
   G.fx.push({ x:x, y:y, z:z, t:0, life:0.5 + s * 0.05, s:s });
   if (s >= 2.4) G.fx.push({ x:x, y:y, z:z, t:0, life:0.62, s:s, ring:1 });
@@ -1546,6 +1579,8 @@ function update(dt){
   s.pitch += ((s.vy / VMAX) * 0.24 - s.pitch) * Math.min(1, dt * 8);
   s.cool = Math.max(0, s.cool - dt);
   s.inv = Math.max(0, s.inv - dt);
+  if (G.pow.twin > 0) G.pow.twin -= dt;
+  if (G.pow.rapid > 0) G.pow.rapid -= dt;
 
   /* barrel roll */
   if (s.rollT > 0){
@@ -1575,12 +1610,17 @@ function update(dt){
   G.boosting = boost;
   /* the field of view opens a little under boost */
   G.fov += ((boost ? 1.11 : brake ? 0.97 : 1) - G.fov) * Math.min(1, dt * 3.5);
-  FOCAL = FOCAL_BASE / G.fov;
+  FOCAL = FOCAL_BASE / Math.max(0.7, G.fov + cam.kick);
   droneLevel(0.07 + (G.speed / (G.baseSpeed * 1.5)) * 0.07);
 
   cam.x += (s.x * 0.34 - cam.x) * Math.min(1, dt * 6);
   cam.y += ((s.y * 0.40 - 11) - cam.y) * Math.min(1, dt * 6);
-  cam.roll += (s.bank * 0.14 - cam.roll) * Math.min(1, dt * 5);
+  /* the view banks with the stick and rolls right through a barrel roll */
+  cam.roll += ((s.bank * 0.26 + s.roll * 0.42 + cam.rz) - cam.roll) * Math.min(1, dt * 8);
+  cam.kick += (0 - cam.kick) * Math.min(1, dt * 4.2);
+  cam.ox += (0 - cam.ox) * Math.min(1, dt * 6.5);
+  cam.oy += (0 - cam.oy) * Math.min(1, dt * 6.5);
+  cam.rz += (0 - cam.rz) * Math.min(1, dt * 5);
 
   /* --- progress --- */
   if (G.stage !== "approach"){
@@ -1588,7 +1628,7 @@ function update(dt){
     G.score += G.speed * dt * 0.04;
     var p = G.traveled / RUN_LEN;
     MUS.level = Math.min(1, p);
-    MUS.bpm = 142 + p * 14;
+    MUS.bpm = 132 + p * 16;
     if (G.stage === "surface" && p > 0.45){
       G.stage = "trench";
       banner("The Trench", "Stay on the deck");
@@ -1729,10 +1769,19 @@ function update(dt){
       var dx = G.ship.x - rg.x, dy = G.ship.y - rg.y;
       if (dx * dx + dy * dy < 132){
         G.rings++;
-        G.shield = Math.min(G.maxShield, G.shield + Math.round(G.maxShield * 0.14));
         G.score += 300;
-        SFX.ring(); paintShield();
-        sparks(rg.x, rg.y, SHIPZ + 8, 12, "127,212,255");
+        SFX.ring();
+        camPunch(0.02, 0, -4, 0);
+        sparks(rg.x, rg.y, SHIPZ + 8, 12, rg.power ? "141,255,176" : "127,212,255");
+        if (rg.power === "twin"){
+          G.pow.twin = 14; pop(rg.x, rg.y, SHIPZ + 30, "TWIN LASERS", "141,255,176", 1);
+        } else if (rg.power === "rapid"){
+          G.pow.rapid = 14; pop(rg.x, rg.y, SHIPZ + 30, "RAPID FIRE", "141,255,176", 1);
+        } else {
+          G.shield = Math.min(G.maxShield, G.shield + Math.round(G.maxShield * (rg.power ? 0.30 : 0.14)));
+          pop(rg.x, rg.y, SHIPZ + 30, rg.power ? "SHIELD RESTORED" : "+SHIELD", "127,212,255", !!rg.power);
+        }
+        paintShield();
       }
     }
     if (rg.z < -40) G.rings3.splice(ri, 1);
@@ -1811,6 +1860,11 @@ function update(dt){
     fx.t += dt; fx.z -= G.speed * dt * 0.4;
     if (fx.t > fx.life) G.fx.splice(fi, 1);
   }
+  for (var qi = G.pops.length - 1; qi >= 0; qi--){
+    var Q = G.pops[qi];
+    Q.t += dt; Q.z -= G.speed * dt * 0.45;
+    if (Q.t > Q.life || Q.z < 8) G.pops.splice(qi, 1);
+  }
   for (var di = G.debris.length - 1; di >= 0; di--){
     var db = G.debris[di];
     db.t += dt;
@@ -1858,11 +1912,23 @@ function hurtEnemy(e, n){
     G.hits++;
     G.combo++;
     if (G.combo > G.bestCombo) G.bestCombo = G.combo;
+    /* arcade feedback: a frame of hit stop, a punch, and the chain climbing */
+    G.freeze = Math.max(G.freeze, 0.045);
+    camPunch(0.013, rnd(-4, 4), rnd(-3, 3), rnd(-0.02, 0.02));
+    tone("square", 620 + Math.min(14, G.combo) * 85, 220, 0.09, 0.10);
     if (G.combo === 5 || G.combo === 10 || G.combo === 18){
       sting([0, 7, 12, 16], 220, 0.06);
       say("Red Six", G.combo >= 10 ? "You are cleaning house out there, Red Five." : "Nice shot.", false, 1.16);
     }
-    G.score += (e.mode === "tail" ? 800 : e.big ? 600 : e.fast ? 380 : 200) * (1 + Math.min(4, G.combo / 5));
+    var worth = Math.round((e.mode === "tail" ? 800 : e.big ? 600 : e.fast ? 380 : 200) * (1 + Math.min(4, G.combo / 5)));
+    G.score += worth;
+    pop(e.x, e.y, e.z, "+" + worth, e.mode === "tail" ? "141,255,176" : "255,232,31", e.big || e.mode === "tail");
+    if (G.combo >= 3 && G.combo % 3 === 0)
+      pop(e.x, e.y - 8, e.z, "x" + Math.min(5, 1 + Math.floor(G.combo / 5)) + " CHAIN", "111,216,255", 1);
+    if (e.big && Math.random() < 0.55){
+      G.rings3.push({ x:e.x, y:e.y, z:e.z, spin:0, got:0,
+                      power:pick(["twin", "rapid", "shield"]) });
+    }
     boom(e.x, e.y, e.z, e.big ? 4 : 2.4);
     sparks(e.x, e.y, e.z, e.big ? 26 : 16, "255,150,80");
     SFX.boom();
@@ -1880,6 +1946,8 @@ function hurt(n){
   G.combo = 0;
   s.inv = DIFF[diffKey].inv;
   G.shake = 1; G.hitFlash = 1;
+  G.freeze = Math.max(G.freeze, 0.085);
+  camPunch(0.055, rnd(-12, 12), rnd(-9, 9), rnd(-0.07, 0.07));
   SFX.hit();
   sparks(s.x, s.y, SHIPZ + 6, 12, "255,90,60");
   paintShield();
@@ -1942,6 +2010,7 @@ function attemptTorpedo(){
   G.bombs--;
   paintBombs();
   G.fired = true;
+  camPunch(0.13, 0, 9, 0);
   SFX.torpedo();
   var dx = Math.abs(G.ship.x - pt.x), dy = Math.abs(G.ship.y - pt.y);
   var bx = DIFF[diffKey].box;
@@ -1973,7 +2042,7 @@ function finish(kind){
     SFX.win();
     if (G.port) boom(G.port.x, G.port.y, G.port.z, 7);
     G.shake = 1.8; G.flash = 1;
-    MUS.mode = "final"; MUS.bpm = 178;
+    MUS.mode = "final"; MUS.bpm = 168;
     elState.textContent = "GET CLEAR";
     banner("Get Clear", "She is going to blow");
     say("Gold Leader", "Direct hit! Pull out, Red Five, the whole thing is going up!", true, 0.82);
@@ -2016,7 +2085,11 @@ function updateEscape(dt){
   G.traveled += G.speed * dt;
   G.trench = Math.max(0, G.trench - dt * 0.30);
   G.fov += (1.18 - G.fov) * Math.min(1, dt * 1.4);
-  FOCAL = FOCAL_BASE / G.fov;
+  FOCAL = FOCAL_BASE / Math.max(0.7, G.fov + cam.kick);
+  cam.kick += (0 - cam.kick) * Math.min(1, dt * 4.2);
+  cam.ox += (0 - cam.ox) * Math.min(1, dt * 6.5);
+  cam.oy += (0 - cam.oy) * Math.min(1, dt * 6.5);
+  cam.rz += (0 - cam.rz) * Math.min(1, dt * 5);
   G.boosting = true;
 
   cam.x += (s.x * 0.55 - cam.x) * Math.min(1, dt * 6);
@@ -2054,6 +2127,11 @@ function updateEscape(dt){
     var S = G.sparks[i];
     S.t += dt; S.x += S.vx * dt; S.y += S.vy * dt; S.z += S.vz * dt - G.speed * dt * 0.4;
     if (S.t > S.life || S.z < 6) G.sparks.splice(i, 1);
+  }
+  for (i = G.pops.length - 1; i >= 0; i--){
+    var Q = G.pops[i];
+    Q.t += dt; Q.z -= G.speed * dt * 0.45;
+    if (Q.t > Q.life || Q.z < 8) G.pops.splice(i, 1);
   }
   for (i = G.debris.length - 1; i >= 0; i--){
     var db = G.debris[i];
@@ -2546,6 +2624,25 @@ function drawComputer(){
                W / 2, Math.max(52, H * 0.115));
 }
 
+function drawPops(){
+  if (!G.pops.length) return;
+  ctx.textAlign = "center";
+  for (var i = 0; i < G.pops.length; i++){
+    var P = G.pops[i];
+    if (P.z < 12) continue;
+    var pp = P.t / P.life, k = FOCAL / P.z;
+    var X = pjx(P.x, P.z), Y = pjy(P.y, P.z) - pp * 46 * P.s;
+    var fs = Math.max(11, Math.min(34, 26 * k * P.s));
+    ctx.font = "700 " + fs.toFixed(0) + "px 'Saira Condensed','Helvetica Neue',sans-serif";
+    var a = pp < 0.12 ? pp / 0.12 : (1 - pp);
+    ctx.fillStyle = "rgba(0,0,0," + (a * 0.5).toFixed(3) + ")";
+    ctx.fillText(P.text, X + 1.5, Y + 1.5);
+    ctx.fillStyle = "rgba(" + P.col + "," + a.toFixed(3) + ")";
+    ctx.fillText(P.text, X, Y);
+  }
+  ctx.textAlign = "left";
+}
+
 function drawReticles(){
   if (G.phase !== "run") return;
   var s = G.ship;
@@ -2602,7 +2699,9 @@ function renderScene(){
   /* rings */
   for (i = 0; i < G.rings3.length; i++){
     var rg = G.rings3[i];
-    if (!rg.got) pushModel(M.ring, rg.x, rg.y, rg.z, 0, 0, rg.spin, 1);
+    if (!rg.got)
+      pushModel(M.ring, rg.x, rg.y, rg.z, 0, 0, rg.spin, rg.power ? 0.86 : 1,
+                rg.power ? [141, 255, 176] : null);
   }
   /* wingmates */
   for (i = 0; i < G.mates.length; i++){
@@ -2673,10 +2772,9 @@ function render(){
   drawGround();
 
   ctx.save();
-  if (G.shake > 0){
-    var m = G.shake * 8;
-    ctx.translate((Math.random() - 0.5) * m, (Math.random() - 0.5) * m);
-  }
+  var m = G.shake * 8;
+  ctx.translate(cam.ox + (m ? (Math.random() - 0.5) * m : 0),
+                cam.oy + (m ? (Math.random() - 0.5) * m : 0));
 
   renderScene();
 
@@ -2708,6 +2806,7 @@ function render(){
   drawFx();
   ctx.restore();
 
+  drawPops();
   drawReticles();
   drawComputer();
 
@@ -2716,11 +2815,11 @@ function render(){
     gctx.fillStyle = "rgba(0,0,0,.62)";
     gctx.fillRect(0, 0, GW, GH);
     gctx.globalCompositeOperation = "lighter";
-    gctx.filter = "brightness(1.4) contrast(3.4) blur(3px)";
+    gctx.filter = "brightness(1.45) contrast(3.3) blur(3px)";
     gctx.drawImage(cv, 0, 0, GW, GH);
     gctx.filter = "none";
     ctx.globalCompositeOperation = "lighter";
-    ctx.globalAlpha = 0.40;
+    ctx.globalAlpha = 0.44;
     ctx.drawImage(gcv, 0, 0, W, H);
     ctx.globalAlpha = 1;
     ctx.globalCompositeOperation = "source-over";
@@ -2883,7 +2982,7 @@ function start(){
   droneStart();
   G = newGame();
   cam.x = 0; cam.y = -11; cam.roll = 0;
-  MUS.mode = "cruise"; MUS.bpm = 142; MUS.level = 0;
+  MUS.mode = "cruise"; MUS.bpm = 132; MUS.level = 0;
   paintShield(); paintBombs(); paintWing();
   document.getElementById("p-start").hidden = true;
   document.getElementById("p-end").hidden = true;
@@ -2988,6 +3087,14 @@ function frame(now){
   last = now;
   if (dt > 0.05) dt = 0.05;
   var t0 = performance.now();
+
+  if (G && G.freeze > 0 && G.phase !== "crawl" && G.phase !== "jump"){
+    /* a couple of frames of hit stop, for the punch */
+    G.freeze -= dt;
+    render();
+    requestAnimationFrame(frame);
+    return;
+  }
 
   if (G && !G.paused && (G.phase === "crawl" || G.phase === "jump")){
     if (G.phase === "crawl"){
