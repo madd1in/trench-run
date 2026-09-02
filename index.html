@@ -3,11 +3,11 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="description" content="An arcade polygon trench run in a single HTML file: an opening crawl, a brass march, X-wings and TIEs, score chains and power-ups, a targeting computer you can switch off, and a run for your life once the shot lands.">
+<meta name="description" content="An arcade polygon trench run in a single HTML file: an opening crawl, a cockpit view, a brass march, X-wings and TIEs, score chains and power-ups, a targeting computer you can switch off, and a run for your life once the shot lands.">
 <meta name="theme-color" content="#04050a">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Red Five Trench Run">
-<meta property="og:description" content="An arcade on-rails trench run: opening crawl, brass march, score chains, power-ups and one shot at the exhaust port.">
+<meta property="og:description" content="An arcade on-rails trench run: opening crawl, cockpit view, brass march, score chains, and one shot at the exhaust port.">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>&#127919;</text></svg>">
 <style>
   html{color-scheme:dark}
@@ -267,6 +267,7 @@ body.cinema .footnote{display:none}
       <button class="chip" id="chip-mus" aria-pressed="true">Music</button>
       <button class="chip" id="chip-voice" aria-pressed="true">Comms</button>
       <button class="chip" id="chip-bloom" aria-pressed="true">Bloom</button>
+      <button class="chip" id="chip-view" aria-pressed="false">Cockpit</button>
       <button class="chip" id="chip-crawl" aria-pressed="true">Crawl</button>
       <button class="chip" id="chip-full" aria-pressed="false">Expand</button>
     </div>
@@ -331,6 +332,7 @@ body.cinema .footnote{display:none}
             <span><b>SHIFT</b> boost &middot; <b>CTRL</b> brake</span>
             <span><b>B</b> torpedo salvo</span>
             <span><b>F</b> targeting computer</span>
+            <span><b>V</b> cockpit view</span>
             <span><b>P</b> pause</span>
             <span><b>SHIFT+F</b> expand</span>
           </div>
@@ -851,6 +853,31 @@ function buildModels(){
   b.box(-1.1, -5.8, -1.1, 1.1, -5.1, 1.1, 10, 10, 1, 0);
   M.turret = b.build();
 
+  /* ================= Imperial cruiser ================= */
+  b = new Builder();
+  b.box(-9, -1.4, -26, 9, 2.6, 4, 9, 0, 0, 1);
+  var cn = b.vert(0, 0.6, 34);
+  var q0 = b.vert(-9, -1.4, 4), q1 = b.vert(9, -1.4, 4),
+      q2 = b.vert(9, 2.6, 4), q3 = b.vert(-9, 2.6, 4);
+  b.face([cn, q1, q0], 0, 0, 1);
+  b.face([cn, q2, q1], 9, 0, 1);
+  b.face([cn, q3, q2], 2, 0, 1);
+  b.face([cn, q0, q3], 9, 0, 1);
+  b.box(-3.4, -4.2, -22, 3.4, -1.3, -12, 12, 9, 0, 1);      /* superstructure */
+  b.box(-1.5, -5.6, -19, 1.5, -4.0, -14, 9, 0, 0, 1);       /* bridge         */
+  b.box(-2.4, -6.6, -18, -1.4, -5.4, -16, 12, 12, 0, 0);
+  b.box( 1.4, -6.6, -18,  2.4, -5.4, -16, 12, 12, 0, 0);
+  for (var ce = -1; ce <= 1; ce++)
+    b.box(ce * 4.2 - 1.5, -0.8, -27, ce * 4.2 + 1.5, 1.6, -26, 6, 6, 1, 0);
+  for (var cw = 0; cw < 7; cw++){
+    b.quad([[-9.1, -0.6 - cw * 0.28, -20 + cw * 2.4], [-9.1, -0.6 - cw * 0.28, -16 + cw * 2.4],
+            [-9.1, -0.2 - cw * 0.28, -16 + cw * 2.4], [-9.1, -0.2 - cw * 0.28, -20 + cw * 2.4]], 10, 1, 0);
+    /* belly running lights, since you are looking up at it */
+    b.quad([[-6 + cw * 2, 2.64, -18 + cw * 2.6], [-4.6 + cw * 2, 2.64, -18 + cw * 2.6],
+            [-4.6 + cw * 2, 2.64, -17 + cw * 2.6], [-6 + cw * 2, 2.64, -17 + cw * 2.6]], 10, 1, 0);
+  }
+  M.cruiser = b.build();
+
   /* ================= surface superstructure ================= */
   b = new Builder();
   b.box(-11, -30, -11, 11, 0, 11, 13, 9, 0, 1);
@@ -1000,7 +1027,8 @@ var CHORD = [
 ];
 var PROG = {
   cruise: [0, 1, 2, 3, 0, 4, 2, 3],
-  final:  [5, 4, 2, 0, 5, 4, 3, 0]
+  final:  [5, 4, 2, 0, 5, 4, 3, 0],
+  escape: [5, 5, 4, 4, 0, 0, 2, 3]
 };
 /* semitone offsets above the octave root; 0 is a rest */
 var LEAD = {
@@ -1011,7 +1039,9 @@ var LEAD = {
   /* horn counter-line under the second half */
   c:    [ 0, 0, 7, 0,   5, 0, 7, 0,  12, 0, 0, 0,   0, 7, 5, 0],
   /* the run in: tighter, more urgent, same shape */
-  final:[12, 0,12, 0,  15, 0,17, 0,  19, 0,17,15,  12, 0, 0, 0]
+  final:[12, 0,12, 0,  15, 0,17, 0,  19, 0,17,15,  12, 0, 0, 0],
+  /* the run out: no breath in it at all */
+  escape:[12,0,15, 0,  17, 0,15, 0,  19, 0,17, 0,  15, 0,12, 0]
 };
 var ARP = [0, 7, 12, 19, 24, 19, 12, 7];
 
@@ -1065,15 +1095,19 @@ function mnoise(t, dur, vol, cut, hp){
 
 function musicStep(step, t){
   var bar = (step >> 4) & 7, s = step & 15;
-  var boss = MUS.mode === "final";
-  var ch = CHORD[(boss ? PROG.final : PROG.cruise)[bar]];
+  var mode = MUS.mode;
+  var esc = mode === "escape";
+  var boss = mode !== "cruise";
+  var ch = CHORD[(esc ? PROG.escape : boss ? PROG.final : PROG.cruise)[bar]];
   var lv = MUS.level;
   var half = bar >= 4;
 
   /* --- timpani and march snare --- */
-  var kick = boss ? [1,0,0,0, 0,0,1,0, 1,0,0,1, 0,0,1,0] : [1,0,0,0, 0,0,1,0, 1,0,0,0, 0,1,0,0];
+  var kick = esc  ? [1,0,1,0, 1,0,1,0, 1,0,1,0, 1,0,1,0]
+           : boss ? [1,0,0,0, 0,0,1,0, 1,0,0,1, 0,0,1,0]
+                  : [1,0,0,0, 0,0,1,0, 1,0,0,0, 0,1,0,0];
   if (kick[s]){
-    mvoice("sine", ch[0] * 0.75, t, 0.30, 0.62, 300, 1);
+    mvoice("sine", ch[0] * 0.75, t, esc ? 0.20 : 0.30, esc ? 0.52 : 0.62, 300, 1);
     mnoise(t, 0.06, 0.13, 240);
   }
   /* a timpani roll into every four-bar phrase */
@@ -1084,12 +1118,18 @@ function musicStep(step, t){
     mnoise(t, 0.15, 0.30, 2000, 1);
     mvoice("triangle", 205, t, 0.09, 0.22, 2400, 1);
   }
+  /* a snare fill closing each four-bar phrase */
+  if ((bar & 3) === 3 && s >= 10){
+    mnoise(t, 0.07, 0.12 + (s - 10) * 0.035, 2600, 1);
+    if (s === 15) mnoise(t, 0.4, 0.20, 7200, 1);
+  }
   if (s % 2 === 1) mnoise(t, 0.024, 0.075 + lv * 0.04, 8400, 1);
-  /* cymbal swell opening each phrase */
   if (s === 0 && (bar & 3) === 0) mnoise(t, 0.55, 0.14, 7000, 1);
 
-  /* --- bass, walking rather than pumping --- */
-  var bp = boss ? [1,0,1,0, 1,0,1,1, 1,0,1,0, 1,1,0,1] : [1,0,0,0, 1,0,0,1, 1,0,0,0, 1,0,1,0];
+  /* --- bass --- */
+  var bp = esc  ? [1,0,1,1, 1,0,1,1, 1,0,1,1, 1,0,1,1]
+         : boss ? [1,0,1,0, 1,0,1,1, 1,0,1,0, 1,1,0,1]
+                : [1,0,0,0, 1,0,0,1, 1,0,0,0, 1,0,1,0];
   if (bp[s]) mvoice("sawtooth", ch[0], t, 0.20, 0.44 + lv * 0.08, 700 + lv * 900, 6);
   if (s === 0) mvoice("square", ch[0] * 0.5, t, 0.55, 0.20, 380, 2);
 
@@ -1099,7 +1139,10 @@ function musicStep(step, t){
     brass(ch[1], t, 0.95, pv, 1700);
     brass(ch[2], t, 0.95, pv * 0.72, 1600);
   }
-  /* --- strings above, swelling with the run --- */
+  /* low brass under the melody once things are serious */
+  if (boss && (s === 0 || s === 6 || s === 12)) brass(ch[0] * 2, t, 0.34, 0.15, 1300);
+
+  /* --- strings above --- */
   if (s === 0 && (lv > 0.18 || boss)){
     var sv = 0.06 + lv * 0.055;
     strings(ch[2] * 2, t, 2.3, sv);
@@ -1107,25 +1150,23 @@ function musicStep(step, t){
     if (boss) strings(ch[1] * 4, t, 2.3, sv * 0.55);
   }
 
-  /* --- arpeggio, once things are moving --- */
+  /* --- arpeggio --- */
   if ((lv > 0.36 || boss) && (s & 1) === 0){
     mvoice("square", ch[1] * Math.pow(2, ARP[(step >> 1) & 7] / 12), t, 0.10, 0.062, 3600, 1.2);
   }
 
   /* --- the melody, brass in octaves --- */
-  var pat = boss ? LEAD.final : (half ? LEAD.b : LEAD.a);
+  var pat = esc ? LEAD.escape : boss ? LEAD.final : (half ? LEAD.b : LEAD.a);
   var semi = pat[s];
   if (semi && (lv > 0.10 || boss)){
     var f0 = ch[1] * Math.pow(2, semi / 12);
-    brass(f0, t, boss ? 0.30 : 0.36, 0.30, 3600);
-    brass(f0 * 0.5, t, boss ? 0.30 : 0.36, 0.17, 2000);
+    brass(f0, t, esc ? 0.24 : boss ? 0.30 : 0.36, 0.30, 3600);
+    brass(f0 * 0.5, t, esc ? 0.24 : boss ? 0.30 : 0.36, 0.17, 2000);
   }
-  /* the counter-line answers underneath in the second half */
   if (!boss && lv > 0.5 && half){
     var cs = LEAD.c[s];
     if (cs) brass(ch[1] * Math.pow(2, cs / 12) * 0.5, t, 0.30, 0.12, 1900);
   }
-  /* a pick-up into the top of the form */
   if (s === 15 && bar === 7) brass(ch[3] * 2, t, 0.16, 0.20, 4200);
 }
 
@@ -1264,6 +1305,7 @@ window.addEventListener("keydown", function(e){
   keys[k] = true;
   if (k === "p" && G.phase === "run") togglePause();
   if (k === "b") dropBomb();
+  if (k === "v") setCockpit(!cockpit);
   if (k === "f" && !e.shiftKey) toggleComputer();
   if (k === "q") barrelRoll(-1);
   if (k === "e") barrelRoll(1);
@@ -1303,7 +1345,7 @@ var DIFF = {
   ace:      { shield:80,  dmg:1.50, base:300, fire:1.30, lock:0.60, gap:0.88, bolt:455, box:16, inv:0.85, label:"Ace" }
 };
 var diffKey = "recruit";
-var crawlOn = true, crawlSeen = false;
+var crawlOn = true, crawlSeen = false, cockpit = false;
 var CRAWL_STAGGER = 0.38, CRAWL_SPEED = 0.19, CRAWL_TOTAL = 9.8;
 var CRAWL_LINES = [
   { t:"RED SQUADRON", big:1 },
@@ -1345,7 +1387,7 @@ function newGame(){
     spawnAcc:0, spawnGap:280, propAcc:0, shake:0, flash:0, hitFlash:0,
     debris:[], pops:[], trench:0, fov:1, combo:0, bestCombo:0, freeze:0,
     pow:{ twin:0, rapid:0 },
-    port:null, computer:true, lock:0, lockTick:0, fired:false, torpedo:null,
+    port:null, computer:true, lock:0, lockTick:0, fired:false, torpedo:null, cruiserDone:0,
     result:null, said:{}
   };
 }
@@ -1515,6 +1557,15 @@ function banner(a, b){
   el.querySelector(".b2").textContent = b;
   el.classList.remove("on"); void el.offsetWidth; el.classList.add("on");
 }
+/* a near miss is worth something, and should feel like one */
+function closeCall(x, y, text, worth){
+  G.score += worth;
+  pop(x, y, SHIPZ + 26, text, "111,216,255", 1);
+  camPunch(0.02, rnd(-7, 7), 0, rnd(-0.03, 0.03));
+  tone("sine", 1300, 520, 0.12, 0.09);
+  noise(0.16, 0.10, 3200);
+}
+
 function pop(x, y, z, text, col, big){
   if (G.pops.length > 26) G.pops.shift();
   /* jitter so two kills in the same instant do not print on top of each other */
@@ -1613,10 +1664,17 @@ function update(dt){
   FOCAL = FOCAL_BASE / Math.max(0.7, G.fov + cam.kick);
   droneLevel(0.07 + (G.speed / (G.baseSpeed * 1.5)) * 0.07);
 
-  cam.x += (s.x * 0.34 - cam.x) * Math.min(1, dt * 6);
-  cam.y += ((s.y * 0.40 - 11) - cam.y) * Math.min(1, dt * 6);
-  /* the view banks with the stick and rolls right through a barrel roll */
-  cam.roll += ((s.bank * 0.26 + s.roll * 0.42 + cam.rz) - cam.roll) * Math.min(1, dt * 8);
+  if (cockpit){
+    /* eyes in the canopy: the view is locked to the airframe */
+    cam.x += (s.x - cam.x) * Math.min(1, dt * 11);
+    cam.y += ((s.y - 3.5) - cam.y) * Math.min(1, dt * 11);
+    cam.roll += ((s.bank * 0.55 + s.roll * 0.92 + cam.rz) - cam.roll) * Math.min(1, dt * 10);
+  } else {
+    cam.x += (s.x * 0.34 - cam.x) * Math.min(1, dt * 6);
+    cam.y += ((s.y * 0.40 - 11) - cam.y) * Math.min(1, dt * 6);
+    /* the view banks with the stick and rolls right through a barrel roll */
+    cam.roll += ((s.bank * 0.26 + s.roll * 0.42 + cam.rz) - cam.roll) * Math.min(1, dt * 8);
+  }
   cam.kick += (0 - cam.kick) * Math.min(1, dt * 4.2);
   cam.ox += (0 - cam.ox) * Math.min(1, dt * 6.5);
   cam.oy += (0 - cam.oy) * Math.min(1, dt * 6.5);
@@ -1644,6 +1702,13 @@ function update(dt){
     }
     G.propAcc += G.speed * dt;
     if (G.propAcc >= 190){ G.propAcc = 0; spawnProp(p); }
+
+    /* a cruiser crosses the lane once, part way through the surface run */
+    if (!G.cruiserDone && p > 0.24){
+      G.cruiserDone = 1;
+      G.props.push({ kind:"cruiser", x:rnd(-60, 60), y:-165, z:FAR, yaw:rnd(-0.5, 0.5), s:12 });
+      say("Red Two", "Imperial cruiser crossing above us. Hold your line, Red Five.", true, 1.05);
+    }
   }
 
   /* --- wingmates --- */
@@ -1734,7 +1799,9 @@ function update(dt){
     if (e.z < SHIPZ - 40){
       /* it got past - clip the player if it was in the way */
       var cw = e.big ? 13 : 8, chh = e.big ? 10 : 6;
-      if (!e.dead && Math.abs(e.x - G.ship.x) < cw && Math.abs(e.y - G.ship.y) < chh) hurt(e.big ? 18 : 12);
+      var edx = Math.abs(e.x - G.ship.x), edy = Math.abs(e.y - G.ship.y);
+      if (!e.dead && edx < cw && edy < chh) hurt(e.big ? 18 : 12);
+      else if (!e.dead && edx < cw + 12 && edy < chh + 9) closeCall(e.x, e.y, "CLOSE", 200);
       G.enemies.splice(i, 1);
       continue;
     }
@@ -1743,7 +1810,8 @@ function update(dt){
   /* --- props --- */
   for (var pi = G.props.length - 1; pi >= 0; pi--){
     var pr = G.props[pi];
-    pr.z -= G.speed * dt;
+    pr.z -= G.speed * (pr.kind === "cruiser" ? 0.42 : 1) * dt;
+    if (pr.kind === "cruiser"){ pr.x += 14 * dt; pr.y += 5 * dt; }
     if (pr.kind === "turret" && !pr.dead){
       pr.cool -= dt;
       if (pr.cool <= 0 && pr.z > SHIPZ + 60 && pr.z < 620){
@@ -1754,7 +1822,9 @@ function update(dt){
     if (pr.kind === "arch" && !pr.hitTested && pr.z <= SHIPZ){
       pr.hitTested = 1;
       /* the pillars are solid; the opening is the middle */
-      if (Math.abs(G.ship.x - pr.x) > 26 * pr.s - 9) hurt(16);
+      var margin = 26 * pr.s - 9 - Math.abs(G.ship.x - pr.x);
+      if (margin < 0) hurt(16);
+      else if (margin < 11) closeCall(G.ship.x, G.ship.y, "THREADED IT", 500);
     }
     if (pr.z < -60) G.props.splice(pi, 1);
   }
@@ -2042,7 +2112,7 @@ function finish(kind){
     SFX.win();
     if (G.port) boom(G.port.x, G.port.y, G.port.z, 7);
     G.shake = 1.8; G.flash = 1;
-    MUS.mode = "final"; MUS.bpm = 168;
+    MUS.mode = "escape"; MUS.bpm = 172;
     elState.textContent = "GET CLEAR";
     banner("Get Clear", "She is going to blow");
     say("Gold Leader", "Direct hit! Pull out, Red Five, the whole thing is going up!", true, 0.82);
@@ -2322,20 +2392,51 @@ function drawSky(){
   for (var eg = 0; eg < 3; eg++)
     ctx.fillRect(sdx - sw * 1.02, sdy - sh * 0.24 + eg * sh * 0.30, sw * 0.07, sh * 0.16);
 
-  /* the station's surface running away to the limb */
+  /* light spilling off the giant, in soft wedges */
+  ctx.save();
+  ctx.globalCompositeOperation = "lighter";
+  for (var ls = 0; ls < 4; ls++){
+    var la = -0.5 + ls * 0.26;
+    var lg = ctx.createLinearGradient(pw, ph, pw + Math.cos(la) * W, ph + Math.sin(la) * W);
+    lg.addColorStop(0, "rgba(214,196,132,.055)");
+    lg.addColorStop(1, "rgba(214,196,132,0)");
+    ctx.fillStyle = lg;
+    ctx.beginPath();
+    ctx.moveTo(pw, ph);
+    ctx.lineTo(pw + Math.cos(la - 0.055) * W * 1.6, ph + Math.sin(la - 0.055) * W * 1.6);
+    ctx.lineTo(pw + Math.cos(la + 0.055) * W * 1.6, ph + Math.sin(la + 0.055) * W * 1.6);
+    ctx.closePath();
+    ctx.fill();
+  }
+  ctx.restore();
+
+  /* the station's surface running away to its own limb */
+  var drift = G.traveled * 0.02 + cam.x * 0.5;
+  var bow = H * 0.052;
   ctx.fillStyle = "#1a1d24";
   ctx.beginPath();
-  ctx.moveTo(0, CY + 1);
-  var drift = G.traveled * 0.02 + cam.x * 0.5;
-  for (var k = 0; k <= 30; k++){
-    var xr = k / 30 * W;
-    var hh = (hash(k * 31 + Math.floor(drift / 110)) * 0.6 + hash(k * 7) * 0.4) * H * 0.055
-           + Math.sin(k / 30 * 3.1416) * H * 0.018;
-    ctx.lineTo(xr, CY - hh);
+  ctx.moveTo(-2, CY + 2);
+  for (var k = 0; k <= 34; k++){
+    var u = k / 34, xr = u * W;
+    /* a shallow arc: this is the curve of something very large */
+    var curve = Math.sin(u * 3.1416) * bow;
+    var greeble = (hash(k * 31 + Math.floor(drift / 110)) * 0.55 + hash(k * 7) * 0.45) * H * 0.026;
+    ctx.lineTo(xr, CY - curve - greeble);
   }
-  ctx.lineTo(W, CY + 1);
+  ctx.lineTo(W + 2, CY + 2);
   ctx.closePath();
   ctx.fill();
+  /* a rim of light along the limb */
+  ctx.strokeStyle = "rgba(190,200,220,.20)";
+  ctx.lineWidth = 1.2;
+  ctx.beginPath();
+  for (var k2 = 0; k2 <= 34; k2++){
+    var u2 = k2 / 34;
+    var yy = CY - Math.sin(u2 * 3.1416) * bow
+             - (hash(k2 * 31 + Math.floor(drift / 110)) * 0.55 + hash(k2 * 7) * 0.45) * H * 0.026;
+    if (k2 === 0) ctx.moveTo(u2 * W, yy); else ctx.lineTo(u2 * W, yy);
+  }
+  ctx.stroke();
   /* a thin lit edge along the limb */
   ctx.strokeStyle = "rgba(255,176,32,.16)";
   ctx.lineWidth = 1;
@@ -2624,6 +2725,68 @@ function drawComputer(){
                W / 2, Math.max(52, H * 0.115));
 }
 
+/* the canopy frame, drawn over everything when flying from the seat */
+function drawCanopy(){
+  if (!cockpit) return;
+  var fw = W * 0.085, fh = H * 0.125;
+  ctx.fillStyle = "#0e1117";
+  /* top rail and corner braces */
+  ctx.beginPath();
+  ctx.moveTo(0, 0); ctx.lineTo(W, 0); ctx.lineTo(W, fh * 0.42);
+  ctx.lineTo(W * 0.70, fh * 0.60); ctx.lineTo(W * 0.30, fh * 0.60); ctx.lineTo(0, fh * 0.42);
+  ctx.closePath(); ctx.fill();
+  ctx.beginPath();
+  ctx.moveTo(0, H); ctx.lineTo(W, H); ctx.lineTo(W, H - fh * 0.30);
+  ctx.lineTo(W * 0.62, H - fh * 0.62); ctx.lineTo(W * 0.38, H - fh * 0.62); ctx.lineTo(0, H - fh * 0.30);
+  ctx.closePath(); ctx.fill();
+  ctx.beginPath();
+  ctx.moveTo(0, 0); ctx.lineTo(fw * 0.9, 0); ctx.lineTo(fw * 0.42, H); ctx.lineTo(0, H);
+  ctx.closePath(); ctx.fill();
+  ctx.beginPath();
+  ctx.moveTo(W, 0); ctx.lineTo(W - fw * 0.9, 0); ctx.lineTo(W - fw * 0.42, H); ctx.lineTo(W, H);
+  ctx.closePath(); ctx.fill();
+  /* corner braces running into the frame */
+  ctx.fillStyle = "#11151d";
+  ctx.beginPath();
+  ctx.moveTo(fw * 0.55, fh * 0.52); ctx.lineTo(W * 0.30, fh * 0.60);
+  ctx.lineTo(W * 0.30, fh * 0.86); ctx.lineTo(fw * 0.50, fh * 1.35);
+  ctx.closePath(); ctx.fill();
+  ctx.beginPath();
+  ctx.moveTo(W - fw * 0.55, fh * 0.52); ctx.lineTo(W * 0.70, fh * 0.60);
+  ctx.lineTo(W * 0.70, fh * 0.86); ctx.lineTo(W - fw * 0.50, fh * 1.35);
+  ctx.closePath(); ctx.fill();
+  /* centre strut down the canopy */
+  ctx.fillStyle = "#151a23";
+  ctx.fillRect(CX - W * 0.005, 0, W * 0.010, fh * 0.66);
+  /* the dash lip, with its own instrument glow */
+  ctx.fillStyle = "#0b0e14";
+  ctx.beginPath();
+  ctx.moveTo(W * 0.38, H - fh * 0.62); ctx.lineTo(W * 0.62, H - fh * 0.62);
+  ctx.lineTo(W * 0.66, H - fh * 0.30); ctx.lineTo(W * 0.34, H - fh * 0.30);
+  ctx.closePath(); ctx.fill();
+  ctx.fillStyle = "rgba(255,176,32,.16)";
+  ctx.fillRect(W * 0.40, H - fh * 0.55, W * 0.20, Math.max(1, H * 0.004));
+  /* a lit edge where the frame meets the glass */
+  ctx.strokeStyle = "rgba(255,176,32,.22)";
+  ctx.lineWidth = 1.4;
+  ctx.beginPath();
+  ctx.moveTo(0, fh * 0.42); ctx.lineTo(W * 0.30, fh * 0.60);
+  ctx.lineTo(W * 0.70, fh * 0.60); ctx.lineTo(W, fh * 0.42);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(0, H - fh * 0.30); ctx.lineTo(W * 0.38, H - fh * 0.62);
+  ctx.lineTo(W * 0.62, H - fh * 0.62); ctx.lineTo(W, H - fh * 0.30);
+  ctx.stroke();
+  /* glass sheen sweeping with the roll */
+  var sw = ctx.createLinearGradient(0, 0, W, H);
+  var q = 0.5 + Math.sin(cam.roll * 1.4) * 0.28;
+  sw.addColorStop(Math.max(0, q - 0.22), "rgba(140,200,255,0)");
+  sw.addColorStop(q, "rgba(150,210,255,.045)");
+  sw.addColorStop(Math.min(1, q + 0.22), "rgba(140,200,255,0)");
+  ctx.fillStyle = sw;
+  ctx.fillRect(0, fh * 0.5, W, H - fh);
+}
+
 function drawPops(){
   if (!G.pops.length) return;
   ctx.textAlign = "center";
@@ -2679,13 +2842,15 @@ function drawReticles(){
 function renderScene(){
   var i;
   /* shadows go down before anything stands on them */
-  groundShadow(G.ship.x, G.ship.y, SHIPZ, 9);
+  if (!cockpit) groundShadow(G.ship.x, G.ship.y, SHIPZ, 9);
   for (i = 0; i < G.mates.length; i++)
     if (G.mates[i].alive) groundShadow(G.mates[i].x, G.mates[i].y, G.mates[i].z, 9);
   for (i = 0; i < G.enemies.length; i++)
     if (!G.enemies[i].dead) groundShadow(G.enemies[i].x, G.enemies[i].y, G.enemies[i].z, 7);
   for (i = 0; i < G.rings3.length; i++)
     if (!G.rings3[i].got) groundShadow(G.rings3[i].x, G.rings3[i].y, G.rings3[i].z, 12);
+  for (i = 0; i < G.props.length; i++)
+    if (G.props[i].kind === "cruiser") groundShadow(G.props[i].x, G.props[i].y, G.props[i].z, 90);
   if (G.port) groundShadow(G.port.x, G.port.y, G.port.z, 30);
 
   /* props */
@@ -2693,6 +2858,7 @@ function renderScene(){
     var pr = G.props[i];
     if (pr.kind === "block") pushModel(M.block, pr.x, pr.y, pr.z, pr.yaw, 0, 0, pr.s);
     else if (pr.kind === "arch") pushModel(M.arch, pr.x, pr.y, pr.z, 0, 0, 0, pr.s);
+    else if (pr.kind === "cruiser") pushModel(M.cruiser, pr.x, pr.y, pr.z, pr.yaw, 0, 0, pr.s);
     else if (pr.kind === "turret" && !pr.dead)
       pushModel(M.turret, pr.x, pr.y, pr.z, 0, 0, pr.wall ? pr.wall * 1.5708 : 0, pr.s);
   }
@@ -2726,13 +2892,14 @@ function renderScene(){
   }
   /* the player last so it sorts against everything else */
   var s = G.ship;
-  if (!(s.inv > 0 && ((s.inv * 22) | 0) % 2 === 0))
+  if (!cockpit && !(s.inv > 0 && ((s.inv * 22) | 0) % 2 === 0))
     pushModel(M.player, s.x, s.y, SHIPZ, 0, s.pitch, s.bank + s.roll, 1);
 
   flushFaces();
 }
 
 function drawEngines(){
+  if (cockpit) return;
   /* thruster flare behind the player, drawn in 2D so it can glow */
   var s = G.ship;
   if (s.inv > 0 && ((s.inv * 22) | 0) % 2 === 0) return;
@@ -2806,6 +2973,7 @@ function render(){
   drawFx();
   ctx.restore();
 
+  drawCanopy();
   drawPops();
   drawReticles();
   drawComputer();
@@ -3055,6 +3223,12 @@ chip("chip-voice", true, function(on){
 });
 var bloomChip = chip("chip-bloom", CAN_BLOOM, function(on){ BLOOM = on && CAN_BLOOM; });
 if (!CAN_BLOOM){ BLOOM = false; bloomChip.disabled = true; bloomChip.title = "This browser cannot render the bloom pass"; }
+chip("chip-view", false, function(on){ setCockpit(on); });
+function setCockpit(on){
+  cockpit = on;
+  var c = document.getElementById("chip-view");
+  if (c) c.setAttribute("aria-pressed", on ? "true" : "false");
+}
 chip("chip-crawl", true, function(on){
   crawlOn = on;
   if (on) crawlSeen = false;   /* turning it back on replays it next launch */
