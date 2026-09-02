@@ -3,11 +3,11 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="description" content="An on-rails polygon shooter in a single HTML file: lit flat-shaded 3D ships, a canyon that closes in, a squadron to keep alive, a procedural score, and a dreadnought whose core only opens when it fires.">
-<meta name="theme-color" content="#070a12">
+<meta name="description" content="A polygon trench run in a single HTML file: an X-wing over the battle station surface, TIE fighters, a squadron to keep alive, a procedural score, and a targeting computer you can switch off.">
+<meta name="theme-color" content="#04050a">
 <meta property="og:type" content="website">
-<meta property="og:title" content="Nova Squadron">
-<meta property="og:description" content="An on-rails polygon shooter: lit 3D ships, barrel rolls, radio comms, and a carrier that only has one weak moment.">
+<meta property="og:title" content="Red Five Trench Run">
+<meta property="og:description" content="An on-rails polygon trench run: lit 3D starfighters, radio comms, barrel rolls, and one shot at the exhaust port.">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>&#127919;</text></svg>">
 <style>
   html{color-scheme:dark}
@@ -15,26 +15,24 @@
   img{max-width:100%}
   [hidden]{display:none!important}
 </style>
-<title>Nova Squadron</title>
+<title>Red Five Trench Run</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bruno+Ace+SC&family=Saira+Condensed:wght@400;500;600;700&family=Share+Tech+Mono&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Michroma&family=Saira+Condensed:wght@400;500;600;700&family=Share+Tech+Mono&display=swap">
 <style>
 :root{
-  --void:#070a12;
-  --deep:#0d1422;
-  --panel:#141c2c;
-  --line:#26324a;
-  --accent:#ff6a3d;
-  --accent-deep:#c9411f;
-  --hud:#4de2ff;
-  --gold:#ffc94a;
-  --enemy:#a35cff;
-  --threat:#ff4a55;
-  --good:#8dff8d;
-  --bone:#e6ecf5;
-  --bone-dim:#7f8ca3;
-  --display:"Bruno Ace SC","Arial Narrow",system-ui,sans-serif;
+  --void:#04050a;
+  --deep:#0a0c13;
+  --panel:#12141b;
+  --line:#262a34;
+  --amber:#ffb020;
+  --amber-dim:#8a5c14;
+  --rebel:#ff3b30;
+  --imp:#5cff7a;
+  --sys:#6fd8ff;
+  --bone:#e9e4d8;
+  --bone-dim:#8a8676;
+  --display:"Michroma","Arial Narrow",system-ui,sans-serif;
   --ui:"Saira Condensed","Helvetica Neue",system-ui,sans-serif;
   --data:"Share Tech Mono",ui-monospace,"SFMono-Regular",Menlo,monospace;
 }
@@ -47,52 +45,56 @@ body{
   display:flex;align-items:center;justify-content:center;
   padding:clamp(10px,2.4vw,30px);
   background-image:
-    radial-gradient(ellipse 80% 55% at 50% 0%, #10243a 0%, transparent 68%),
-    radial-gradient(ellipse 70% 50% at 50% 108%, #2a1508 0%, transparent 70%);
+    radial-gradient(ellipse 80% 55% at 50% 0%, #0d1018 0%, transparent 68%),
+    radial-gradient(ellipse 70% 50% at 50% 108%, #1b1408 0%, transparent 70%);
 }
 .cabinet{width:100%;max-width:1180px;display:flex;flex-direction:column;gap:12px}
 
 /* ---------- masthead ---------- */
 .masthead{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;flex-wrap:wrap}
-.wordmark{font-family:var(--display);font-size:clamp(13px,2.2vw,22px);letter-spacing:.02em;color:var(--bone);line-height:1.1}
-.wordmark span{color:var(--accent)}
+.wordmark{font-family:var(--display);font-size:clamp(13px,2.2vw,23px);letter-spacing:.09em;color:var(--bone);line-height:1.1}
+.wordmark span{color:var(--amber)}
 .stamp{
-  font-family:var(--data);font-size:11px;letter-spacing:.14em;color:var(--bone-dim);
+  font-family:var(--data);font-size:11px;letter-spacing:.15em;color:var(--bone-dim);
   text-transform:uppercase;display:flex;gap:9px;align-items:center;flex-wrap:wrap;
 }
-.stamp b{color:var(--hud);font-weight:400}
+.stamp b{color:var(--amber);font-weight:400}
 .chip{
   font-family:var(--ui);font-size:10px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;
   color:var(--bone-dim);background:transparent;border:1px solid var(--line);
   padding:5px 8px;cursor:pointer;line-height:1;
 }
-.chip:hover{color:var(--hud);border-color:var(--hud)}
-.chip[aria-pressed="true"]{color:var(--void);background:var(--hud);border-color:var(--hud)}
+.chip:hover{color:var(--amber);border-color:var(--amber-dim)}
+.chip[aria-pressed="true"]{color:var(--void);background:var(--amber);border-color:var(--amber)}
 .chip:disabled{opacity:.4;cursor:default}
 
 /* ---------- canopy ---------- */
 .bezel{
   position:relative;border:1px solid var(--line);
-  background:linear-gradient(#151d2e,#0a0f1a);
-  padding:9px;
-  clip-path:polygon(0 14px,14px 0,calc(100% - 14px) 0,100% 14px,100% calc(100% - 14px),calc(100% - 14px) 100%,14px 100%,0 calc(100% - 14px));
+  background:linear-gradient(#14161d,#08090e);
+  padding:9px;border-radius:2px;
   box-shadow:0 0 0 1px #000 inset,0 24px 64px -30px #000;
 }
-.screen{position:relative;width:100%;aspect-ratio:16/9;background:#050810;overflow:hidden}
+.bezel::before,.bezel::after{
+  content:"";position:absolute;width:16px;height:16px;border:2px solid var(--amber);
+  opacity:.5;pointer-events:none;
+}
+.bezel::before{left:-1px;top:-1px;border-right:0;border-bottom:0}
+.bezel::after{right:-1px;bottom:-1px;border-left:0;border-top:0}
+.screen{position:relative;width:100%;aspect-ratio:16/9;background:#03040a;overflow:hidden;--hs:1}
 @media (max-width:640px){.screen{aspect-ratio:4/5}}
 canvas{display:block;width:100%;height:100%;touch-action:none}
 .scan{
   position:absolute;inset:0;pointer-events:none;
-  background-image:repeating-linear-gradient(to bottom,rgba(0,0,0,.20) 0 1px,transparent 1px 3px);
+  background-image:repeating-linear-gradient(to bottom,rgba(0,0,0,.26) 0 1px,transparent 1px 3px);
   mix-blend-mode:multiply;
 }
 .vignette{
   position:absolute;inset:0;pointer-events:none;
-  background:radial-gradient(ellipse 84% 80% at 50% 46%,transparent 48%,rgba(4,6,12,.78) 100%);
+  background:radial-gradient(ellipse 84% 80% at 50% 46%,transparent 44%,rgba(2,3,8,.86) 100%);
 }
 
 /* ---------- hud ---------- */
-.screen{--hs:1}
 .hud{position:absolute;inset:0;pointer-events:none;font-family:var(--ui)}
 .hud[hidden]{display:none}
 .cell{position:absolute;display:flex;flex-direction:column;gap:calc(5px * var(--hs))}
@@ -100,63 +102,54 @@ canvas{display:block;width:100%;height:100%;touch-action:none}
 .tr{right:calc(14px * var(--hs));top:calc(12px * var(--hs));align-items:flex-end}
 .bl{left:calc(14px * var(--hs));bottom:calc(12px * var(--hs))}
 .br{right:calc(14px * var(--hs));bottom:calc(12px * var(--hs));align-items:flex-end}
-.lbl{font-size:calc(9px * var(--hs));letter-spacing:.2em;text-transform:uppercase;color:var(--bone-dim);font-weight:600}
-.val{font-family:var(--data);font-size:calc(20px * var(--hs));color:var(--hud);line-height:1;font-variant-numeric:tabular-nums}
-.val.gold{color:var(--gold)}
+.lbl{font-size:calc(9px * var(--hs));letter-spacing:.2em;text-transform:uppercase;color:var(--amber-dim);font-weight:600}
+.val{font-family:var(--data);font-size:calc(20px * var(--hs));color:var(--amber);line-height:1;font-variant-numeric:tabular-nums}
+.val.sys{color:var(--sys)}
 .combo{
-  font-family:var(--data);font-size:calc(12px * var(--hs));color:var(--good);
+  font-family:var(--data);font-size:calc(12px * var(--hs));color:var(--imp);
   letter-spacing:.08em;opacity:0;transition:opacity .18s;margin-top:calc(3px * var(--hs));
 }
 .combo.on{opacity:1}
-.medal{
-  display:flex;align-items:center;gap:10px;padding:11px 14px;
-  border:1px solid var(--line);background:#0b101b;
-}
-.medal i{
-  width:26px;height:26px;flex:none;border-radius:50%;
-  box-shadow:inset 0 -6px 10px rgba(0,0,0,.45);
-}
-.medal .mt{font-family:var(--display);font-size:14px;letter-spacing:.04em}
-.medal .md{font-size:12px;color:var(--bone-dim);line-height:1.35}
 
-.gauge{width:calc(140px * var(--hs));height:calc(9px * var(--hs));background:#101827;border:1px solid var(--line);padding:1px}
-.gauge i{display:block;height:100%;width:100%;background:linear-gradient(90deg,var(--good),var(--hud))}
-.gauge.warn i{background:linear-gradient(90deg,var(--threat),var(--accent))}
-.gauge.sm{width:calc(52px * var(--hs));height:calc(4px * var(--hs));padding:0;border:0;background:#1a2333}
-.gauge.sm i{background:var(--hud)}
-.gauge.sm.hurt i{background:var(--threat)}
+.gauge{width:calc(140px * var(--hs));height:calc(9px * var(--hs));background:#181209;border:1px solid var(--line);padding:1px}
+.gauge i{display:block;height:100%;width:100%;background:linear-gradient(90deg,var(--sys),var(--amber))}
+.gauge.warn i{background:linear-gradient(90deg,var(--rebel),var(--amber))}
+.gauge.sm{width:calc(52px * var(--hs));height:calc(4px * var(--hs));padding:0;border:0;background:#221a10}
+.gauge.sm i{background:var(--amber)}
+.gauge.sm.hurt i{background:var(--rebel)}
 
 .wing{display:flex;flex-direction:column;gap:4px;margin-top:8px}
-.wingrow{display:flex;align-items:center;gap:6px;font-family:var(--data);font-size:calc(10px * var(--hs));color:var(--bone-dim);letter-spacing:.06em}
+.wingrow{display:flex;align-items:center;gap:6px;font-family:var(--data);font-size:calc(10px * var(--hs));color:var(--bone-dim);letter-spacing:.04em;white-space:nowrap}
 .wingrow.down{opacity:.4;text-decoration:line-through}
-.wingrow em{font-style:normal;color:var(--bone);width:calc(46px * var(--hs));display:inline-block}
+.wingrow em{font-style:normal;color:var(--bone);width:calc(62px * var(--hs));display:inline-block;white-space:nowrap}
 
 .bombs{display:flex;gap:4px}
-.bomb{width:calc(11px * var(--hs));height:calc(11px * var(--hs));background:var(--gold);clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%)}
-.bomb.off{background:#2a3547}
+.bomb{width:calc(11px * var(--hs));height:calc(11px * var(--hs));background:var(--sys);clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%)}
+.bomb.off{background:#232833}
 
-.bossbar{
-  position:absolute;left:50%;top:calc(10px * var(--hs));transform:translateX(-50%);width:min(calc(460px * var(--hs)),64%);
-  display:none;flex-direction:column;gap:4px;align-items:center;
+.lockbar{
+  position:absolute;left:50%;top:calc(10px * var(--hs));transform:translateX(-50%);
+  width:min(calc(460px * var(--hs)),64%);display:none;flex-direction:column;gap:4px;align-items:center;
 }
-.bossbar.on{display:flex}
-.bossbar .lbl{color:var(--threat)}
-.bossbar .gauge{width:100%;height:calc(11px * var(--hs))}
-.bossbar .gauge i{background:linear-gradient(90deg,var(--threat),var(--accent))}
+.lockbar.on{display:flex}
+.lockbar .lbl{color:var(--amber)}
+.lockbar .gauge{width:100%;height:calc(11px * var(--hs))}
+.lockbar .gauge i{background:linear-gradient(90deg,var(--amber),#ffe08a);width:0%}
+.lockbar.ready .gauge i{background:linear-gradient(90deg,var(--sys),#d6f6ff)}
 
 .warn{
   position:absolute;left:50%;top:22%;transform:translateX(-50%);
-  font-weight:700;font-size:calc(15px * var(--hs));letter-spacing:.28em;color:var(--threat);
-  text-transform:uppercase;opacity:0;white-space:nowrap;text-shadow:0 0 14px rgba(255,74,85,.7);
+  font-weight:700;font-size:calc(15px * var(--hs));letter-spacing:.28em;color:var(--rebel);
+  text-transform:uppercase;opacity:0;white-space:nowrap;text-shadow:0 0 14px rgba(255,59,48,.7);
 }
 .warn.on{animation:flash .5s steps(2,end) infinite}
 @keyframes flash{0%,49%{opacity:1}50%,100%{opacity:.05}}
 
 .banner{position:absolute;left:50%;top:32%;transform:translate(-50%,-50%);text-align:center;opacity:0;pointer-events:none}
 .banner.on{animation:bannerIn 2.5s ease-out forwards}
-.banner .b1{font-family:var(--display);font-size:calc(24px * var(--hs));color:var(--accent)}
+.banner .b1{font-family:var(--display);font-size:calc(22px * var(--hs));color:var(--amber);letter-spacing:.05em}
 .banner .b2{font-family:var(--data);font-size:calc(10px * var(--hs));letter-spacing:.26em;color:var(--bone-dim);margin-top:6px}
-@keyframes bannerIn{0%{opacity:0;transform:translate(-50%,-50%) scale(.86)}16%{opacity:1;transform:translate(-50%,-50%) scale(1)}76%{opacity:1}100%{opacity:0}}
+@keyframes bannerIn{0%{opacity:0;letter-spacing:.4em}16%{opacity:1;letter-spacing:.05em}76%{opacity:1}100%{opacity:0}}
 
 .comms{
   position:absolute;left:50%;bottom:11px;transform:translateX(-50%);
@@ -164,49 +157,54 @@ canvas{display:block;width:100%;height:100%;touch-action:none}
   color:var(--bone);opacity:0;transition:opacity .22s;text-shadow:0 2px 9px rgba(0,0,0,.95);
 }
 .comms.on{opacity:1}
-.comms b{display:block;font-size:calc(9px * var(--hs));letter-spacing:.18em;margin-bottom:2px;text-transform:uppercase;color:var(--accent)}
+.comms b{display:block;font-size:calc(9px * var(--hs));letter-spacing:.18em;margin-bottom:2px;text-transform:uppercase;color:var(--amber)}
 
 /* ---------- panels ---------- */
 .panel{
   position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
-  background:linear-gradient(rgba(5,8,16,.93),rgba(5,8,16,.98));
+  background:linear-gradient(rgba(3,4,10,.93),rgba(3,4,10,.98));
   padding:clamp(14px,4vw,30px);overflow:auto;
 }
 .panel[hidden]{display:none}
 .card{width:min(620px,100%);display:flex;flex-direction:column;gap:clamp(9px,1.6vw,14px)}
-.eyebrow{font-size:9px;letter-spacing:.26em;text-transform:uppercase;color:var(--accent);font-weight:700;display:flex;align-items:center;gap:9px}
-.eyebrow::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,var(--accent-deep),transparent)}
-h1{font-family:var(--display);font-size:clamp(18px,3.6vw,34px);line-height:1.2;margin:0;text-wrap:balance;color:var(--bone)}
-h1 em{font-style:normal;color:var(--accent)}
-.brief{font-size:clamp(12px,1.5vw,15px);line-height:1.6;color:var(--bone-dim);max-width:64ch;margin:0}
+.eyebrow{font-size:9px;letter-spacing:.26em;text-transform:uppercase;color:var(--amber);font-weight:700;display:flex;align-items:center;gap:9px}
+.eyebrow::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,var(--amber-dim),transparent)}
+h1{font-family:var(--display);font-size:clamp(17px,3.3vw,32px);line-height:1.22;margin:0;text-wrap:balance;color:var(--bone)}
+h1 em{font-style:normal;color:var(--amber)}
+.brief{font-size:clamp(12px,1.5vw,15px);line-height:1.62;color:var(--bone-dim);max-width:64ch;margin:0}
 .brief strong{color:var(--bone);font-weight:600}
 .keys{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:3px 16px;font-family:var(--data);font-size:11px;color:var(--bone-dim)}
-.keys b{color:var(--hud);font-weight:400}
-.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(94px,1fr));background:#0b101b;border:1px solid var(--line)}
+.keys b{color:var(--amber);font-weight:400}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(94px,1fr));background:#0a0c12;border:1px solid var(--line)}
 .stat{padding:8px 11px;display:flex;flex-direction:column;gap:4px;border-right:1px solid var(--line);border-bottom:1px solid var(--line)}
-.stat .n{font-family:var(--data);font-size:16px;color:var(--hud);font-variant-numeric:tabular-nums}
-.stat.hi .n{color:var(--gold)}
+.stat .n{font-family:var(--data);font-size:16px;color:var(--amber);font-variant-numeric:tabular-nums}
+.stat.hi .n{color:var(--sys)}
+.medal{display:flex;align-items:center;gap:10px;padding:11px 14px;border:1px solid var(--line);background:#0a0c12}
+.medal i{width:26px;height:26px;flex:none;border-radius:50%;box-shadow:inset 0 -6px 10px rgba(0,0,0,.45)}
+.medal .mt{font-family:var(--display);font-size:13px;letter-spacing:.03em}
+.medal .md{font-size:12px;color:var(--bone-dim);line-height:1.35}
 button{
-  font-family:var(--ui);font-weight:700;font-size:13px;letter-spacing:.16em;text-transform:uppercase;
-  color:var(--void);background:var(--accent);border:0;padding:11px 22px;cursor:pointer;transition:background .15s,transform .1s;
+  font-family:var(--ui);font-weight:700;font-size:13px;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--void);background:var(--amber);border:0;padding:11px 22px;cursor:pointer;transition:background .15s,transform .1s;
 }
-button:hover{background:#ff875c}
+button:hover{background:#ffc44d}
 button:active{transform:translateY(1px)}
-button:focus-visible{outline:2px solid var(--hud);outline-offset:3px}
+button:focus-visible{outline:2px solid var(--sys);outline-offset:3px}
+.ghost{background:transparent;color:var(--amber);border:1px solid var(--amber-dim)}
 .row{display:flex;gap:9px;flex-wrap:wrap;align-items:center}
 .opts{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
-.footnote{font-family:var(--data);font-size:10px;color:#4a5568;letter-spacing:.1em;text-align:center;margin:0}
+.footnote{font-family:var(--data);font-size:10px;color:#4a4638;letter-spacing:.1em;text-align:center;margin:0}
 
 /* ---------- expanded ---------- */
 body.cinema{padding:0;overflow:hidden}
 body.cinema .cabinet{position:fixed;inset:0;max-width:none;height:100vh;height:100dvh;padding:0;gap:0;background:#000;z-index:60}
 body.cinema .masthead{
   position:absolute;top:0;left:0;right:0;z-index:8;padding:10px 16px;
-  background:linear-gradient(rgba(7,10,18,.92),rgba(7,10,18,0));
+  background:linear-gradient(rgba(4,5,10,.92),rgba(4,5,10,0));
   opacity:0;transition:opacity .3s;pointer-events:none;
 }
 body.cinema.ui-on .masthead{opacity:1;pointer-events:auto}
-body.cinema .bezel{flex:1;min-height:0;display:flex;padding:0;border:0;clip-path:none;box-shadow:none;background:#000}
+body.cinema .bezel{flex:1;min-height:0;display:flex;padding:0;border:0;box-shadow:none;background:#000}
 body.cinema .bezel::before,body.cinema .bezel::after{display:none}
 body.cinema .screen{aspect-ratio:auto;flex:1;min-height:0}
 body.cinema .footnote{display:none}
@@ -221,7 +219,7 @@ body.cinema .footnote{display:none}
 <body>
 <div class="cabinet" id="cabinet">
   <div class="masthead">
-    <div class="wordmark">NOVA <span>//</span> SQUADRON</div>
+    <div class="wordmark">RED FIVE <span>//</span> TRENCH RUN</div>
     <div class="stamp">
       <span>Sector <b id="s-sector">SURFACE</b></span>
       <span id="s-state">STANDBY</span>
@@ -241,31 +239,31 @@ body.cinema .footnote{display:none}
 
       <div class="hud" id="hud" hidden>
         <div class="cell tl">
-          <div class="lbl">Shield</div>
+          <div class="lbl">Deflector Shield</div>
           <div class="gauge" id="shield-g"><i id="shield"></i></div>
           <div class="wing" id="wing"></div>
         </div>
         <div class="cell tr">
           <div class="lbl">Score</div>
-          <div class="val gold" id="score">0</div>
-          <div class="lbl" style="margin-top:6px">Hits</div>
-          <div class="val" id="hits">0</div>
+          <div class="val" id="score">0</div>
+          <div class="lbl" style="margin-top:6px">Kills</div>
+          <div class="val sys" id="hits">0</div>
           <div class="combo" id="combo">x2 chain</div>
         </div>
         <div class="cell bl">
-          <div class="lbl">Bombs</div>
+          <div class="lbl">Proton Torpedoes</div>
           <div class="bombs" id="bombs"></div>
           <div class="lbl" style="margin-top:6px">Throttle</div>
           <div class="gauge" id="thr-g"><i id="throttle"></i></div>
         </div>
         <div class="cell br">
-          <div class="lbl">Distance</div>
+          <div class="lbl">Range to Port</div>
           <div class="val" id="dist">0000</div>
           <div class="lbl" style="margin-top:6px"><span id="fps">60</span> FPS &middot; <span id="ms">0.0</span> MS &middot; <span id="qual">HIGH</span></div>
         </div>
-        <div class="bossbar" id="bossbar">
-          <div class="lbl">Dreadnought &mdash; Core Shield</div>
-          <div class="gauge"><i id="boss-g"></i></div>
+        <div class="lockbar" id="lockbar">
+          <div class="lbl" id="lock-lbl">Targeting Computer &mdash; Lock 0%</div>
+          <div class="gauge"><i id="lock-g"></i></div>
         </div>
         <div class="warn" id="warn">Enemy on your tail</div>
         <div class="banner" id="banner"><div class="b1"></div><div class="b2"></div></div>
@@ -274,9 +272,9 @@ body.cinema .footnote{display:none}
 
       <div class="panel" id="p-start">
         <div class="card">
-          <div class="eyebrow">Mission Briefing &mdash; Operation Nova</div>
-          <h1>Four ships go in. The <em>dreadnought</em> only has to be wrong once.</h1>
-          <p class="brief">Fly the corridor at wave-top height, clear the interceptors off your squadron, and punch through to the carrier holding station at the end of the run. Its core opens when it fires &mdash; <strong>that is the only time it can be hurt</strong>. Fly through the gold rings to patch your shield, and roll when they get behind you.</p>
+          <div class="eyebrow">Mission Briefing &mdash; Red Squadron</div>
+          <h1>The exhaust port is <em>two metres wide</em>. So is the shot.</h1>
+          <p class="brief">Come in low across the battle station's surface, hold the equatorial trench when it opens up beneath you, and put a proton torpedo down the thermal exhaust port at the end of the run. Keep the interceptors off Red Two, Red Three and Red Six. Fly through the shield boosters instead of past them, and roll when the green comes at you.</p>
           <div class="opts">
             <span class="lbl">Difficulty</span>
             <button class="chip" id="d-std" aria-pressed="true">Standard</button>
@@ -284,14 +282,16 @@ body.cinema .footnote{display:none}
           </div>
           <div class="keys">
             <span><b>&larr;&uarr;&darr;&rarr;</b> / <b>WASD</b> fly</span>
-            <span><b>SPACE</b> laser &middot; hold to charge</span>
+            <span><b>SPACE</b> lasers &middot; hold to charge</span>
             <span><b>Q</b> / <b>E</b> barrel roll</span>
             <span><b>SHIFT</b> boost &middot; <b>CTRL</b> brake</span>
-            <span><b>B</b> smart bomb</span>
-            <span><b>P</b> pause &middot; <b>SHIFT+F</b> expand</span>
+            <span><b>B</b> torpedo salvo</span>
+            <span><b>F</b> targeting computer</span>
+            <span><b>P</b> pause</span>
+            <span><b>SHIFT+F</b> expand</span>
           </div>
           <div class="row">
-            <button id="btn-start">Launch</button>
+            <button id="btn-start">Cut in the engines</button>
             <span class="lbl" id="best-line"></span>
           </div>
         </div>
@@ -299,8 +299,8 @@ body.cinema .footnote{display:none}
 
       <div class="panel" id="p-end" hidden>
         <div class="card">
-          <div class="eyebrow" id="e-eyebrow">Mission complete</div>
-          <h1 id="e-title">Dreadnought down</h1>
+          <div class="eyebrow" id="e-eyebrow">Target destroyed</div>
+          <h1 id="e-title">Direct hit</h1>
           <p class="brief" id="e-body"></p>
           <div id="e-medal"></div>
           <div class="stats" id="e-stats"></div>
@@ -312,14 +312,14 @@ body.cinema .footnote{display:none}
         <div class="card">
           <div class="eyebrow">Hold</div>
           <h1>Paused</h1>
-          <p class="brief">Engines idling. The corridor is not going anywhere.</p>
+          <p class="brief">Engines idling. The battle station is not going anywhere.</p>
           <div class="row"><button id="btn-resume">Resume</button></div>
         </div>
       </div>
     </div>
   </div>
 
-  <p class="footnote">AN ORIGINAL HOMAGE TO THE ON-RAILS POLYGON SHOOTER &middot; ARROWS OR DRAG TO FLY &middot; SPACE TO FIRE</p>
+  <p class="footnote">AN UNOFFICIAL FAN TRIBUTE &middot; ARROWS OR DRAG TO FLY &middot; SPACE TO FIRE</p>
 </div>
 
 <script>
@@ -334,7 +334,7 @@ var ctx = cv.getContext("2d", { alpha:false });
 var gcv = document.createElement("canvas");
 var gctx = gcv.getContext("2d");
 var W = 0, H = 0, CX = 0, CY = 0, DPR = 1, GW = 0, GH = 0, FOCAL = 500, FOCAL_BASE = 500;
-var GSCALE = 0.3;
+var GSCALE = 0.26;
 var CAN_BLOOM = (function(){
   try { gctx.filter = "blur(2px)"; var ok = gctx.filter !== "none"; gctx.filter = "none"; return ok; }
   catch (e){ return false; }
@@ -367,7 +367,6 @@ window.addEventListener("resize", resize);
 
 /* world: x right, y down, z forward */
 var GROUND = 40, FAR = 1600, SHIPZ = 52;
-var BOSS_S = 2.3;   /* the dreadnought is drawn and hit-tested at this scale */
 var FOG0 = 260, FOG1 = 1400;
 var LIM_X = 46, LIM_TOP = -30, LIM_BOT = 26;
 var cam = { x:0, y:0, roll:0 };
@@ -382,38 +381,59 @@ var VN = 0;
 
 /* material palette: r,g,b plus an emissive flag */
 var MAT = [
-  [216,226,240], /*0 hull light  */
-  [132,146,172], /*1 hull mid    */
-  [ 66, 78, 98], /*2 hull dark   */
-  [255,106, 61], /*3 accent      */
-  [190, 62, 30], /*4 accent deep */
-  [ 77,226,255], /*5 canopy      */
-  [141,255,176], /*6 engine glow */
-  [163, 92,255], /*7 enemy       */
-  [ 84, 44,132], /*8 enemy dark  */
-  [122,132,150], /*9 metal       */
-  [255,201, 74], /*10 gold       */
-  [255, 74, 85], /*11 hot red    */
-  [ 42, 53, 71], /*12 dark panel */
-  [ 62, 84,112], /*13 slate      */
-  [230,238,248]  /*14 white hot  */
+  [222,218,206], /*0  hull light   */
+  [160,155,140], /*1  hull mid     */
+  [ 88, 85, 76], /*2  hull dark    */
+  [216, 53, 42], /*3  squadron red */
+  [138, 31, 24], /*4  red deep     */
+  [127,212,255], /*5  canopy       */
+  [159,216,255], /*6  engine glow  */
+  [139,146,156], /*7  imperial grey*/
+  [ 51, 57, 65], /*8  imperial dark*/
+  [122,127,136], /*9  metal        */
+  [255,176, 32], /*10 lamp amber   */
+  [255, 59, 48], /*11 hot red      */
+  [ 34, 37, 44], /*12 dark panel   */
+  [ 78, 83, 92], /*13 station grey */
+  [242,239,230]  /*14 white hot    */
 ];
 var LX = -0.42, LY = -0.80, LZ = 0.42;   /* key light, y is down     */
 var L2X = 0.34, L2Y = 0.62, L2Z = -0.24; /* bounce fill              */
 var HX = -0.391, HY = -0.745, HZ = -0.540; /* half-vector, key + view */
-var FOGC = [26, 48, 72];
+var FOGC = [13, 15, 21];
+
+/* colour strings quantised to 5 bits per channel and cached, so a fill
+   reuses one string object instead of parsing a freshly built one */
+var COLK = new Array(32768);
+function colStr(r, g, b){
+  if (r < 0) r = 0; else if (r > 255) r = 255;
+  if (g < 0) g = 0; else if (g > 255) g = 255;
+  if (b < 0) b = 0; else if (b > 255) b = 255;
+  var key = ((r >> 3) << 10) | ((g >> 3) << 5) | (b >> 3);
+  var c = COLK[key];
+  if (c === undefined){
+    c = COLK[key] = "rgb(" + ((r >> 3) << 3) + "," + ((g >> 3) << 3) + "," + ((b >> 3) << 3) + ")";
+  }
+  return c;
+}
 
 /* face draw pool - reused every frame, no per-frame allocation */
 var POOL = [], PN = 0, ORDER = [];
 function face4(){
   var f = POOL[PN];
-  if (!f){ f = POOL[PN] = { n:0, x:new Float32Array(4), y:new Float32Array(4), z:0, r:0, g:0, b:0, ln:0 }; }
+  if (!f){ f = POOL[PN] = { n:0, x:new Float32Array(4), y:new Float32Array(4), z:0, c:"", ln:0 }; }
   PN++;
   return f;
 }
 
-function mkModel(verts, faces){
+function mkModel(verts, faces, noCull){
+  var nv = verts.length / 3;
   var nrm = new Float32Array(faces.length * 3);
+  /* model centroid, used to point every normal away from the inside */
+  var ox = 0, oy = 0, oz = 0, k;
+  for (k = 0; k < nv; k++){ ox += verts[k*3]; oy += verts[k*3+1]; oz += verts[k*3+2]; }
+  ox /= nv; oy /= nv; oz /= nv;
+
   for (var i = 0; i < faces.length; i++){
     var id = faces[i][0];
     var a = id[0] * 3, b = id[1] * 3, c = id[2] * 3;
@@ -421,9 +441,15 @@ function mkModel(verts, faces){
     var vx = verts[c] - verts[a], vy = verts[c+1] - verts[a+1], vz = verts[c+2] - verts[a+2];
     var nx = uy*vz - uz*vy, ny = uz*vx - ux*vz, nz = ux*vy - uy*vx;
     var L = Math.sqrt(nx*nx + ny*ny + nz*nz) || 1;
-    nrm[i*3] = nx/L; nrm[i*3+1] = ny/L; nrm[i*3+2] = nz/L;
+    nx /= L; ny /= L; nz /= L;
+    /* face centre minus centroid tells us which way is out */
+    var fx = 0, fy = 0, fz = 0;
+    for (k = 0; k < id.length; k++){ fx += verts[id[k]*3]; fy += verts[id[k]*3+1]; fz += verts[id[k]*3+2]; }
+    fx = fx / id.length - ox; fy = fy / id.length - oy; fz = fz / id.length - oz;
+    if (nx*fx + ny*fy + nz*fz < 0){ nx = -nx; ny = -ny; nz = -nz; }
+    nrm[i*3] = nx; nrm[i*3+1] = ny; nrm[i*3+2] = nz;
   }
-  return { v:verts, f:faces, n:nrm, nv:verts.length / 3 };
+  return { v:verts, f:faces, n:nrm, nv:nv, noCull:!!noCull };
 }
 
 function Builder(){ this.v = []; this.f = []; }
@@ -460,7 +486,7 @@ Builder.prototype.quad = function(pts, c, e, ln){
   this.face([b, b+1, b+2, b+3], c, e, ln);
   return b;
 };
-Builder.prototype.build = function(){ return mkModel(this.v, this.f); };
+Builder.prototype.build = function(noCull){ return mkModel(this.v, this.f, noCull); };
 
 /* draw one model instance: rotate, translate, project, shade, queue */
 function pushModel(mo, ox, oy, oz, yaw, pitch, roll, scale, tint, dim){
@@ -490,13 +516,25 @@ function pushModel(mo, ox, oy, oz, yaw, pitch, roll, scale, tint, dim){
   }
   VN += nv;
 
-  var fs = mo.f, nrm = mo.n;
+  var fs = mo.f, nrm = mo.n, cull = !mo.noCull;
   for (i = 0; i < fs.length; i++){
     var fd = fs[i], id = fd[0], n = id.length;
     var zs = 0, j;
     for (j = 0; j < n; j++) zs += VZ[base + id[j]];
     zs /= n;
     if (zs < 6 || zs > FAR) continue;
+
+    /* reject before queueing: off screen, or too small to be worth a fill */
+    var mnx = 1e9, mxx = -1e9, mny = 1e9, mxy = -1e9;
+    for (j = 0; j < n; j++){
+      var vx0 = SX[base + id[j]], vy0 = SY[base + id[j]];
+      if (vx0 < mnx) mnx = vx0;
+      if (vx0 > mxx) mxx = vx0;
+      if (vy0 < mny) mny = vy0;
+      if (vy0 > mxy) mxy = vy0;
+    }
+    if (mxx < -8 || mnx > W + 8 || mxy < -8 || mny > H + 8) continue;
+    if (mxx - mnx < 1.1 && mxy - mny < 1.1) continue;
 
     var f = face4();
     f.n = n;
@@ -508,12 +546,14 @@ function pushModel(mo, ox, oy, oz, yaw, pitch, roll, scale, tint, dim){
     var a1 = nx * cr - ny * sr, b1 = nx * sr + ny * cr, c1 = nz;
     var b2 = b1 * cp - c1 * sp, c2 = b1 * sp + c1 * cp;
     var a3 = a1 * cy + c2 * sy, c3 = -a1 * sy + c2 * cy;
+    /* a face pointing away from us is hidden by the hull in front of it */
+    if (cull && c3 > 0.02) continue;
 
     var m = MAT[fd[1]], sh;
     if (fd[2]){
       sh = 1.18;                                  /* emissive faces ignore the lights */
     } else {
-      /* flip the normal to whichever side faces the camera, then light it */
+      /* uncullable meshes can still present a back face; flip it to face us */
       var na = a3, nb = b2, nc = c3;
       if (nc > 0){ na = -na; nb = -nb; nc = -nc; }
       var key = na * LX + nb * LY + nc * LZ;
@@ -523,7 +563,8 @@ function pushModel(mo, ox, oy, oz, yaw, pitch, roll, scale, tint, dim){
       var hd = na * HX + nb * HY + nc * HZ;
       var spec = 0;
       if (hd > 0){ var h2 = hd * hd, h4 = h2 * h2, h8 = h4 * h4; spec = h8 * h8 * 0.62; }
-      sh = 0.25 + key * key * 0.50 + key * 0.44 + fl * 0.25 + spec;
+      /* nc is negative once flipped, so -nc is how squarely the face looks at us */
+      sh = 0.21 + key * key * 0.48 + key * 0.42 + fl * 0.22 + (-nc) * 0.26 + spec;
     }
     if (dim) sh *= dim;
 
@@ -532,10 +573,9 @@ function pushModel(mo, ox, oy, oz, yaw, pitch, roll, scale, tint, dim){
     fog *= 0.88;
     var rr = m[0] * sh, gg = m[1] * sh, bb = m[2] * sh;
     if (tint){ rr = rr * 0.45 + tint[0] * 0.55; gg = gg * 0.45 + tint[1] * 0.55; bb = bb * 0.45 + tint[2] * 0.55; }
-    f.r = (rr + (FOGC[0] - rr) * fog) | 0;
-    f.g = (gg + (FOGC[1] - gg) * fog) | 0;
-    f.b = (bb + (FOGC[2] - bb) * fog) | 0;
-    if (f.r > 255) f.r = 255; if (f.g > 255) f.g = 255; if (f.b > 255) f.b = 255;
+    f.c = colStr((rr + (FOGC[0] - rr) * fog) | 0,
+                 (gg + (FOGC[1] - gg) * fog) | 0,
+                 (bb + (FOGC[2] - bb) * fog) | 0);
     f.ln = (fd[3] && zs < 620) ? 1 : 0;
   }
 }
@@ -547,7 +587,7 @@ function flushFaces(){
   ORDER.sort(function(a, b){ return POOL[b].z - POOL[a].z; });
   for (i = 0; i < PN; i++){
     var f = POOL[ORDER[i]];
-    ctx.fillStyle = "rgb(" + f.r + "," + f.g + "," + f.b + ")";
+    ctx.fillStyle = f.c;
     ctx.beginPath();
     ctx.moveTo(f.x[0], f.y[0]);
     for (var j = 1; j < f.n; j++) ctx.lineTo(f.x[j], f.y[j]);
@@ -571,84 +611,148 @@ function hash(n){ n = (n << 13) ^ n; return ((n * (n * n * 15731 + 789221) + 137
    3 - Models
    ============================================================ */
 var M = {};
+
+/* a wing plate that lies in an arbitrary direction, given thickness across its span */
+function wingSolid(b, sx, sy, root, tip, thick, mat, ln){
+  var nx = -sy * thick, ny = sx * thick;
+  var pts = [
+    [root[0], root[1], root[2]],
+    [root[3], root[4], root[5]],
+    [tip[3],  tip[4],  tip[5]],
+    [tip[0],  tip[1],  tip[2]]
+  ];
+  var base = b.v.length / 3, i;
+  for (i = 0; i < 4; i++) b.v.push(pts[i][0] - nx, pts[i][1] - ny, pts[i][2]);
+  for (i = 0; i < 4; i++) b.v.push(pts[i][0] + nx, pts[i][1] + ny, pts[i][2]);
+  b.face([base+0, base+1, base+2, base+3], mat, 0, ln);
+  b.face([base+7, base+6, base+5, base+4], mat, 0, ln);
+  b.face([base+4, base+5, base+1, base+0], mat, 0, ln);
+  b.face([base+5, base+6, base+2, base+1], mat, 0, ln);
+  b.face([base+6, base+7, base+3, base+2], mat, 0, ln);
+  b.face([base+7, base+4, base+0, base+3], mat, 0, ln);
+  return base;
+}
+
+/* a flat hexagonal panel with depth - the Imperial wing */
+function hexPanel(b, cx, cy, cz, w, h, d, mat, ln){
+  var o = [[-w*0.52,-h],[w*0.52,-h],[w,-h*0.30],[w,h*0.30],[w*0.52,h],[-w*0.52,h],[-w,h*0.30],[-w,-h*0.30]];
+  var base = b.v.length / 3, i;
+  for (i = 0; i < 8; i++) b.v.push(cx + o[i][0], cy + o[i][1], cz - d);
+  for (i = 0; i < 8; i++) b.v.push(cx + o[i][0], cy + o[i][1], cz + d);
+  /* front and back faces as three quads each */
+  b.face([base+7, base+0, base+1, base+2], mat, 0, ln);
+  b.face([base+7, base+2, base+3, base+6], mat, 0, ln);
+  b.face([base+6, base+3, base+4, base+5], mat, 0, ln);
+  b.face([base+10, base+9, base+8, base+15], mat, 0, ln);
+  b.face([base+14, base+11, base+10, base+15], mat, 0, ln);
+  b.face([base+13, base+12, base+11, base+14], mat, 0, ln);
+  return base;
+}
+
 function buildModels(){
-  /* ---- player interceptor ---- */
+  /* ================= X-wing ================= */
   var b = new Builder();
-  /* fuselage */
-  var nose = b.vert(0, 0.1, 7.2);
-  var f0 = b.vert(-1.3, -1.0, 2.6), f1 = b.vert(1.3, -1.0, 2.6),
-      f2 = b.vert(1.5, 1.1, 2.2),  f3 = b.vert(-1.5, 1.1, 2.2);
-  var r0 = b.vert(-1.6, -1.2, -4.2), r1 = b.vert(1.6, -1.2, -4.2),
-      r2 = b.vert(1.8, 1.3, -4.2),  r3 = b.vert(-1.8, 1.3, -4.2);
-  b.face([nose, f1, f0], 0, 0, 1);
-  b.face([nose, f2, f1], 1, 0, 1);
-  b.face([nose, f3, f2], 2, 0, 1);
-  b.face([nose, f0, f3], 1, 0, 1);
-  b.face([f0, f1, r1, r0], 0, 0, 1);
-  b.face([f1, f2, r2, r1], 1, 0, 1);
-  b.face([f2, f3, r3, r2], 2, 0, 1);
-  b.face([f3, f0, r0, r3], 1, 0, 1);
-  b.face([r0, r1, r2, r3], 2, 0, 1);
-  /* canopy and spine */
-  b.box(-0.95, -1.9, 0.1, 0.95, -1.0, 2.7, 5, 5, 1, 0);
-  b.box(-0.55, -1.55, -3.4, 0.55, -1.05, 0.2, 2, 1, 0, 1);
-  b.quad([[-1.5, -1.06, 2.3], [1.5, -1.06, 2.3], [1.6, -1.22, -3.9], [-1.6, -1.22, -3.9]], 1, 0, 1);
-  /* wings */
-  for (var s = -1; s <= 1; s += 2){
-    b.plate([[s*1.4, 0.1, 2.0], [s*7.6, -0.5, -0.2], [s*8.0, -0.5, -3.0], [s*1.5, 0.1, -3.6]], 0.42, 0, 1);
-    /* leading accent stripe, laid on the wing skin */
-    b.quad([[s*2.8, -0.50, 1.2], [s*7.3, -0.94, -0.35], [s*7.5, -0.94, -1.5], [s*2.9, -0.50, 0.1]], 3, 0, 0);
-    b.quad([[s*2.9, -0.50, -2.2], [s*7.5, -0.94, -2.3], [s*7.6, -0.94, -2.9], [s*3.0, -0.50, -2.9]], 4, 0, 0);
-    /* down-canted wing tip */
-    b.plate([[s*7.4, -0.4, -0.3], [s*8.4, 3.0, -1.0], [s*8.5, 3.0, -3.0], [s*7.9, -0.4, -3.0]], 0.28, 1, 1);
-    /* engine nacelle */
-    b.box(s*2.4 - 0.95, -0.9, -4.6, s*2.4 + 0.95, 0.9, -1.4, 9, 1, 0, 1);
-    b.box(s*2.4 - 0.7, -0.65, -5.3, s*2.4 + 0.7, 0.65, -4.6, 6, 6, 1, 0);
-    /* cannon */
-    b.box(s*5.2 - 0.28, -0.62, -0.4, s*5.2 + 0.28, -0.1, 3.0, 2, 2, 0, 0);
+  function xwingCore(bb, detail){
+    /* detail 0 is the reduced hull used for the rest of the flight */
+    var nose = bb.vert(0, 0.2, 11.5);
+    var f0 = bb.vert(-1.15, -1.05, 3.0), f1 = bb.vert(1.15, -1.05, 3.0),
+        f2 = bb.vert(1.25, 1.15, 2.6),  f3 = bb.vert(-1.25, 1.15, 2.6);
+    var r0 = bb.vert(-1.5, -1.35, -5.4), r1 = bb.vert(1.5, -1.35, -5.4),
+        r2 = bb.vert(1.6, 1.45, -5.4),  r3 = bb.vert(-1.6, 1.45, -5.4);
+    bb.face([nose, f1, f0], 0, 0, 1);
+    bb.face([nose, f2, f1], 1, 0, 1);
+    bb.face([nose, f3, f2], 2, 0, 1);
+    bb.face([nose, f0, f3], 1, 0, 1);
+    bb.face([f0, f1, r1, r0], 0, 0, 1);
+    bb.face([f1, f2, r2, r1], 1, 0, 1);
+    bb.face([f2, f3, r3, r2], 2, 0, 1);
+    bb.face([f3, f0, r0, r3], 1, 0, 1);
+    bb.face([r0, r1, r2, r3], 2, 0, 1);
+    /* squadron stripes on the nose */
+    bb.quad([[-1.16, -1.08, 2.9], [1.16, -1.08, 2.9], [1.02, -0.98, 4.9], [-1.02, -0.98, 4.9]], 3, 0, 0);
+    if (detail)
+      bb.quad([[-1.0, -0.96, 5.4], [1.0, -0.96, 5.4], [0.82, -0.84, 7.0], [-0.82, -0.84, 7.0]], 4, 0, 0);
+    /* canopy */
+    bb.box(-0.92, -2.05, -1.0, 0.92, -1.05, 2.4, 5, 5, 1, 0);
+    if (detail){
+      /* astromech socket behind the canopy */
+      bb.box(-0.62, -2.0, -3.3, 0.62, -1.2, -1.3, 9, 1, 0, 1);
+      bb.quad([[-0.6, -2.02, -1.4], [0.6, -2.02, -1.4], [0.6, -2.02, -2.6], [-0.6, -2.02, -2.6]], 5, 1, 0);
+    }
   }
-  /* tail fin */
-  b.plate([[-0.3, -1.2, -3.0], [-0.3, -4.0, -4.4], [-0.3, -4.0, -5.2], [-0.3, -1.2, -4.4]], 0.3, 4, 1);
+
+  xwingCore(b, 1);
+  /* four wings in attack position, each with a cannon and an engine */
+  for (var sx = -1; sx <= 1; sx += 2){
+    for (var sy = -1; sy <= 1; sy += 2){
+      wingSolid(b, sx, sy,
+        [sx*1.45, sy*1.15, 1.4,  sx*1.55, sy*1.3, -5.2],
+        [sx*10.6, sy*4.55, -3.0, sx*11.0, sy*4.75, -6.0],
+        0.30, 0, 1);
+      /* red flash on the outer panel */
+      b.quad([[sx*7.2, sy*3.1 - sy*0.34, -3.4], [sx*10.4, sy*4.45 - sy*0.34, -4.4],
+              [sx*10.5, sy*4.5 - sy*0.34, -5.4], [sx*7.3, sy*3.15 - sy*0.34, -4.5]], 3, 0, 0);
+      /* cannon */
+      b.box(sx*10.5 - 0.30, sy*4.6 - 0.30, -3.6, sx*10.5 + 0.30, sy*4.6 + 0.30, 5.2, 2, 2, 0, 0);
+      /* engine nacelle at the wing root */
+      b.box(sx*2.7 - 1.05, sy*2.2 - 1.05, -6.8, sx*2.7 + 1.05, sy*2.2 + 1.05, -0.6, 9, 1, 0, 1);
+      b.quad([[sx*2.7 - 0.82, sy*2.2 - 0.82, -6.86], [sx*2.7 + 0.82, sy*2.2 - 0.82, -6.86],
+              [sx*2.7 + 0.82, sy*2.2 + 0.82, -6.86], [sx*2.7 - 0.82, sy*2.2 + 0.82, -6.86]], 6, 1, 0);
+      b.quad([[sx*2.7 - 1.06, sy*2.2 - 0.5, -5.6], [sx*2.7 - 1.06, sy*2.2 + 0.5, -5.6],
+              [sx*2.7 - 1.06, sy*2.2 + 0.5, -2.2], [sx*2.7 - 1.06, sy*2.2 - 0.5, -2.2]], 12, 0, 0);
+    }
+  }
   M.player = b.build();
 
-  /* reduced-part hull for the wingmates - same silhouette, a third of the faces */
+  /* lighter hull for the wingmates */
   b = new Builder();
-  var ln0 = b.vert(0, 0.1, 7.2);
-  var g0 = b.vert(-1.4, -1.1, 2.4), g1 = b.vert(1.4, -1.1, 2.4),
-      g2 = b.vert(1.6, 1.2, 2.0), g3 = b.vert(-1.6, 1.2, 2.0);
-  var h0 = b.vert(-1.6, -1.2, -4.2), h1 = b.vert(1.6, -1.2, -4.2),
-      h2 = b.vert(1.8, 1.3, -4.2), h3 = b.vert(-1.8, 1.3, -4.2);
-  b.face([ln0, g1, g0], 0, 0, 1); b.face([ln0, g2, g1], 1, 0, 1);
-  b.face([ln0, g3, g2], 2, 0, 1); b.face([ln0, g0, g3], 1, 0, 1);
-  b.face([g0, g1, h1, h0], 0, 0, 1); b.face([g1, g2, h2, h1], 1, 0, 1);
-  b.face([g2, g3, h3, h2], 2, 0, 1); b.face([g3, g0, h0, h3], 1, 0, 1);
-  b.face([h0, h1, h2, h3], 6, 1, 0);
-  b.quad([[-0.9, -1.8, 0.4], [0.9, -1.8, 0.4], [0.9, -1.5, 2.4], [-0.9, -1.5, 2.4]], 5, 1, 0);
-  for (var s3 = -1; s3 <= 1; s3 += 2){
-    b.plate([[s3*1.4, 0.1, 2.0], [s3*7.6, -0.5, -0.2], [s3*8.0, -0.5, -3.0], [s3*1.5, 0.1, -3.6]], 0.42, 0, 1);
-    b.quad([[s3*2.8, -0.50, 1.2], [s3*7.3, -0.94, -0.35], [s3*7.5, -0.94, -1.5], [s3*2.9, -0.50, 0.1]], 3, 0, 0);
-    b.plate([[s3*7.4, -0.4, -0.3], [s3*8.4, 3.0, -1.0], [s3*8.5, 3.0, -3.0], [s3*7.9, -0.4, -3.0]], 0.28, 1, 1);
+  xwingCore(b, 0);
+  for (var sx2 = -1; sx2 <= 1; sx2 += 2){
+    for (var sy2 = -1; sy2 <= 1; sy2 += 2){
+      wingSolid(b, sx2, sy2,
+        [sx2*1.45, sy2*1.15, 1.4,  sx2*1.55, sy2*1.3, -5.2],
+        [sx2*10.6, sy2*4.55, -3.0, sx2*11.0, sy2*4.75, -6.0],
+        0.30, 0, 1);
+      b.quad([[sx2*2.7 - 0.8, sy2*2.2 - 0.8, -6.4], [sx2*2.7 + 0.8, sy2*2.2 - 0.8, -6.4],
+              [sx2*2.7 + 0.8, sy2*2.2 + 0.8, -6.4], [sx2*2.7 - 0.8, sy2*2.2 + 0.8, -6.4]], 6, 1, 0);
+    }
   }
   M.mate = b.build();
 
-  /* ---- enemy interceptor ---- */
+  /* ================= TIE fighter ================= */
   b = new Builder();
-  var en = b.vert(0, 0, -5.2);
-  var e0 = b.vert(-1.4, -0.9, 1.0), e1 = b.vert(1.4, -0.9, 1.0),
-      e2 = b.vert(1.4, 0.9, 1.0), e3 = b.vert(-1.4, 0.9, 1.0);
-  b.face([en, e0, e1], 7, 0, 1);
-  b.face([en, e1, e2], 8, 0, 1);
-  b.face([en, e2, e3], 7, 0, 1);
-  b.face([en, e3, e0], 8, 0, 1);
-  b.face([e3, e2, e1, e0], 8, 0, 1);
-  for (var s2 = -1; s2 <= 1; s2 += 2){
-    b.plate([[s2*1.2, 0, 0.8], [s2*6.2, -0.2, 1.6], [s2*6.4, -0.2, -1.6], [s2*1.3, 0, -2.6]], 0.34, 7, 1);
-    b.plate([[s2*4.4, -0.3, 1.4], [s2*6.2, -0.3, 1.5], [s2*6.3, -0.3, -1.2], [s2*4.5, -0.3, -1.5]], 0.1, 11, 0);
+  hexPanel(b, -8.6, 0, 0, 4.6, 7.0, 0.34, 7, 1);
+  hexPanel(b,  8.6, 0, 0, 4.6, 7.0, 0.34, 7, 1);
+  /* the dark spars that brace each panel */
+  for (var sp = -1; sp <= 1; sp += 2){
+    b.quad([[sp*8.6 - 0.6, -7.0, -0.38], [sp*8.6 + 0.6, -7.0, -0.38],
+            [sp*8.6 + 0.6,  7.0, -0.38], [sp*8.6 - 0.6,  7.0, -0.38]], 8, 0, 0);
+    b.quad([[sp*8.6 - 4.6, -0.6, -0.38], [sp*8.6 + 4.6, -0.6, -0.38],
+            [sp*8.6 + 4.6,  0.6, -0.38], [sp*8.6 - 4.6,  0.6, -0.38]], 8, 0, 0);
+    b.box(sp*4.0 - 0.9, -0.7, -0.7, sp*4.0 + 0.9, 0.7, 0.7, 8, 8, 0, 1);
   }
-  b.box(-0.8, -0.6, 1.0, 0.8, 0.6, 1.9, 6, 6, 1, 0);
+  /* cockpit ball, faceted rather than boxed */
+  b.box(-2.2, -2.2, -2.4, 2.2, 2.2, 2.5, 7, 0, 0, 1);
+  b.quad([[-1.55, -1.55, 2.54], [1.55, -1.55, 2.54], [1.55, 1.55, 2.54], [-1.55, 1.55, 2.54]], 12, 0, 0);
+  b.quad([[-0.98, -0.98, 2.58], [0.98, -0.98, 2.58], [0.98, 0.98, 2.58], [-0.98, 0.98, 2.58]], 11, 1, 0);
+  b.quad([[-1.9, 2.22, 1.2], [1.9, 2.22, 1.2], [1.9, 2.22, 2.4], [-1.9, 2.22, 2.4]], 2, 0, 0);
   M.enemy = b.build();
 
-  /* ---- ring ---- */
+  /* ================= TIE bomber ================= */
+  b = new Builder();
+  hexPanel(b, -9.6, 0, 0, 4.8, 7.4, 0.36, 7, 1);
+  hexPanel(b,  9.6, 0, 0, 4.8, 7.4, 0.36, 7, 1);
+  for (var sp2 = -1; sp2 <= 1; sp2 += 2){
+    b.quad([[sp2*9.6 - 0.65, -7.4, -0.40], [sp2*9.6 + 0.65, -7.4, -0.40],
+            [sp2*9.6 + 0.65,  7.4, -0.40], [sp2*9.6 - 0.65,  7.4, -0.40]], 8, 0, 0);
+    b.box(sp2*5.6 - 0.9, -0.7, -0.7, sp2*5.6 + 0.9, 0.7, 0.7, 8, 8, 0, 1);
+  }
+  b.box(-2.7, -1.7, -3.4, -0.2, 1.7, 3.6, 7, 7, 0, 1);   /* cockpit pod */
+  b.box( 0.2, -1.6, -3.8,  2.9, 1.9, 3.2, 8, 9, 0, 1);   /* ordnance pod */
+  b.quad([[-2.3, -1.72, 3.2], [-0.6, -1.72, 3.2], [-0.6, -1.72, 1.6], [-2.3, -1.72, 1.6]], 11, 1, 0);
+  M.bomber = b.build();
+
+  /* ================= shield booster ================= */
   b = new Builder();
   var R = 12, r = 1.2, SEG = 10, ring = [];
   for (var i = 0; i < SEG; i++){
@@ -663,81 +767,59 @@ function buildModels(){
   }
   for (i = 0; i < SEG; i++){
     var q = ring[i], w = ring[(i + 1) % SEG];
-    b.face([q[0], w[0], w[1], q[1]], 10, 1, 0);
-    b.face([q[3], q[2], w[2], w[3]], 10, 1, 0);
-    b.face([q[1], w[1], w[2], q[2]], 10, 1, 0);
-    b.face([q[0], q[3], w[3], w[0]], 10, 1, 0);
+    b.face([q[0], w[0], w[1], q[1]], 5, 1, 0);
+    b.face([q[3], q[2], w[2], w[3]], 5, 1, 0);
+    b.face([q[1], w[1], w[2], q[2]], 6, 1, 0);
+    b.face([q[0], q[3], w[3], w[0]], 6, 1, 0);
   }
-  M.ring = b.build();
+  M.ring = b.build(true);   /* a torus: its inner wall must survive culling */
 
-  /* ---- ground turret ---- */
+  /* ================= surface turbolaser ================= */
   b = new Builder();
-  b.box(-3, -2.4, -3, 3, 2.6, 3, 13, 9, 0, 1);
-  b.box(-1.5, -4.4, -1.5, 1.5, -2.2, 1.5, 9, 1, 0, 1);
-  b.box(-0.5, -3.9, 1.0, 0.5, -3.1, 5.4, 2, 2, 0, 0);
-  b.box(-0.9, -4.9, -0.9, 0.9, -4.3, 0.9, 11, 11, 1, 0);
+  b.box(-3.4, -2.6, -3.4, 3.4, 3.0, 3.4, 13, 9, 0, 1);
+  b.box(-2.0, -5.2, -2.0, 2.0, -2.4, 2.0, 9, 1, 0, 1);
+  b.box(-0.55, -4.7, 1.6, -0.05, -3.6, 6.4, 2, 2, 0, 0);
+  b.box( 0.05, -4.7, 1.6,  0.55, -3.6, 6.4, 2, 2, 0, 0);
+  b.quad([[-0.55, -4.72, 6.4], [0.55, -4.72, 6.4], [0.55, -3.62, 6.4], [-0.55, -3.62, 6.4]], 11, 1, 0);
+  b.box(-1.1, -5.8, -1.1, 1.1, -5.1, 1.1, 10, 10, 1, 0);
   M.turret = b.build();
 
-  /* ---- surface block ---- */
+  /* ================= surface superstructure ================= */
   b = new Builder();
-  b.box(-10, -34, -10, 10, 0, 10, 13, 2, 0, 1);
-  b.box(-7, -44, -7, 7, -33, 7, 12, 9, 0, 1);
-  for (var w2 = 0; w2 < 5; w2++){
-    var wy = -6 - w2 * 6;
-    b.quad([[-10.2, wy - 1.4, -5], [-10.2, wy - 1.4, 5], [-10.2, wy, 5], [-10.2, wy, -5]], 10, 1, 0);
-    b.quad([[10.2, wy, -5], [10.2, wy, 5], [10.2, wy - 1.4, 5], [10.2, wy - 1.4, -5]], 10, 1, 0);
-    b.quad([[-5, wy - 1.4, -10.2], [5, wy - 1.4, -10.2], [5, wy, -10.2], [-5, wy, -10.2]], 10, 1, 0);
+  b.box(-11, -30, -11, 11, 0, 11, 13, 9, 0, 1);
+  b.box(-7.5, -42, -7.5, 7.5, -29, 7.5, 12, 13, 0, 1);
+  b.box(-13, -20, -13, 13, -17, 13, 9, 9, 0, 1);
+  for (var w2 = 0; w2 < 6; w2++){
+    var wy = -4 - w2 * 5.5;
+    b.quad([[-11.2, wy - 1.2, -6], [-11.2, wy - 1.2, 6], [-11.2, wy, 6], [-11.2, wy, -6]], 10, 1, 0);
+    b.quad([[11.2, wy, -6], [11.2, wy, 6], [11.2, wy - 1.2, 6], [11.2, wy - 1.2, -6]], 10, 1, 0);
+    b.quad([[-6, wy - 1.2, -11.2], [6, wy - 1.2, -11.2], [6, wy, -11.2], [-6, wy, -11.2]], 10, 1, 0);
   }
-  b.box(-1, -50, -1, 1, -44, 1, 9, 9, 0, 0);
-  b.box(-1.6, -52, -1.6, 1.6, -50, 1.6, 11, 11, 1, 0);
+  b.box(-1.1, -50, -1.1, 1.1, -42, 1.1, 9, 9, 0, 0);
+  b.box(-1.7, -52, -1.7, 1.7, -50, 1.7, 11, 11, 1, 0);
   M.block = b.build();
 
-  /* ---- arch ---- */
+  /* ================= trench gantry ================= */
   b = new Builder();
   b.box(-34, -76, -5, -26, 2, 5, 13, 9, 0, 1);
-  b.box(26, -76, -5, 34, 2, 5, 13, 9, 0, 1);
-  b.box(-34, -88, -5, 34, -76, 5, 2, 9, 0, 1);
-  b.quad([[-30, -84, -5.4], [30, -84, -5.4], [30, -81, -5.4], [-30, -81, -5.4]], 3, 1, 0);
+  b.box( 26, -76, -5,  34, 2, 5, 13, 9, 0, 1);
+  b.box(-34, -88, -5,  34, -76, 5, 2, 9, 0, 1);
+  b.box(-30, -80, -3.4, -22, -76, 3.4, 12, 12, 0, 1);
+  b.box( 22, -80, -3.4,  30, -76, 3.4, 12, 12, 0, 1);
+  b.quad([[-31, -84, -5.4], [31, -84, -5.4], [31, -81, -5.4], [-31, -81, -5.4]], 10, 1, 0);
   M.arch = b.build();
 
-  /* ---- dreadnought ---- */
+  /* ================= thermal exhaust port ================= */
   b = new Builder();
-  b.box(-16, -9, -22, 16, 9, 26, 9, 0, 0, 1);            /* hull      */
-  b.box(-11, -14, -12, 11, -8, 16, 2, 1, 0, 1);          /* spine     */
-  b.quad([[-10.6, -14.2, 15.6], [10.6, -14.2, 15.6], [10.6, -14.2, 11], [-10.6, -14.2, 11]], 3, 1, 0);
-  b.box(-5, -19, -4, 5, -13, 10, 2, 1, 0, 1);            /* tower     */
-  b.quad([[-4.6, -19.2, 9.6], [4.6, -19.2, 9.6], [4.6, -19.2, 5], [-4.6, -19.2, 5]], 5, 1, 0);
-  for (var sd = -1; sd <= 1; sd += 2){
-    b.box(sd*16, -7, -14, sd*34, 5, 12, 2, 1, 0, 1);     /* arm       */
-    b.quad([[sd*16.2, -7.2, 11], [sd*33.8, -7.2, 11], [sd*33.8, -7.2, 6], [sd*16.2, -7.2, 6]], 3, 1, 0);
-    b.box(sd*30, -5, 12, sd*38, 3, 30, 9, 0, 0, 1);      /* pod       */
-    b.box(sd*33, -2.4, 30, sd*35, 0.4, 38, 2, 2, 0, 0);  /* cannon    */
-    b.box(sd*33.4, -1.9, 38, sd*34.6, -0.1, 39.4, 11, 11, 1, 0);
-    b.box(sd*22, -10.5, -18, sd*28, -6.5, 2, 8, 8, 0, 1);
-    b.box(sd*24.4, -11.4, -19.4, sd*25.6, -10.2, -18.2, 11, 11, 1, 0);
-    b.box(sd*15, -3, -23.4, sd*15 + 3, 1, -22.2, 6, 6, 1, 0);  /* engine */
+  b.box(-26, -26, -6, 26, 26, 6, 13, 9, 0, 1);          /* housing        */
+  b.box(-18, -18, -9, 18, 18, -5, 12, 12, 0, 1);        /* recessed frame */
+  b.box(-11, -11, -13, 11, 11, -8, 8, 8, 0, 1);         /* the shaft      */
+  b.quad([[-9, -9, -13.2], [9, -9, -13.2], [9, 9, -13.2], [-9, 9, -13.2]], 11, 1, 0);
+  for (var e = -1; e <= 1; e += 2){
+    b.box(e*20 - 2, -25, -7.2, e*20 + 2, -21, -6.4, 10, 10, 1, 0);
+    b.box(e*20 - 2,  21, -7.2, e*20 + 2,  25, -6.4, 10, 10, 1, 0);
   }
-  b.box(-13, -5, 26, 13, 6, 31, 2, 1, 0, 1);             /* core housing */
-  M.boss = b.build();
-
-  /* core shutters and the core itself are separate so they can animate */
-  b = new Builder();
-  b.box(-9, -4, 0, -1, 5, 2.5, 2, 1, 0, 1);
-  M.shutterL = b.build();
-  b = new Builder();
-  b.box(1, -4, 0, 9, 5, 2.5, 2, 1, 0, 1);
-  M.shutterR = b.build();
-  b = new Builder();
-  var cr = 7.4;
-  var ci = [
-    b.vert(0, -cr, 0), b.vert(cr, 0, 0), b.vert(0, cr, 0), b.vert(-cr, 0, 0),
-    b.vert(0, 0, cr), b.vert(0, 0, -cr)
-  ];
-  b.face([ci[0], ci[1], ci[4]], 11, 1, 0); b.face([ci[1], ci[2], ci[4]], 11, 1, 0);
-  b.face([ci[2], ci[3], ci[4]], 11, 1, 0); b.face([ci[3], ci[0], ci[4]], 11, 1, 0);
-  b.face([ci[1], ci[0], ci[5]], 11, 1, 0); b.face([ci[2], ci[1], ci[5]], 11, 1, 0);
-  b.face([ci[3], ci[2], ci[5]], 11, 1, 0); b.face([ci[0], ci[3], ci[5]], 11, 1, 0);
-  M.core = b.build();
+  M.port = b.build();
 
   /* hull fragment thrown off by an explosion */
   b = new Builder();
@@ -827,6 +909,7 @@ var SFX = {
   roll:    function(){ tone("sine", 900, 260, 0.34, 0.14); noise(0.22, 0.1, 2600); },
   ring:    function(){ tone("sine", 880, 880, 0.09, 0.2); tone("sine", 1320, 1320, 0.14, 0.16, 0.08); },
   bomb:    function(){ noise(1.2, 0.5, 700); tone("sine", 110, 26, 1.2, 0.3); },
+  torpedo: function(){ tone("sine", 260, 900, 0.55, 0.22); noise(0.3, 0.16, 1800); },
   ding:    function(){ tone("sine", 1500, 1500, 0.07, 0.14); },
   win:     function(){ noise(1.1, 0.42, 1500); tone("sine", 96, 30, 1.4, 0.26); },
   fail:    function(){ tone("sawtooth", 320, 46, 0.95, 0.24); noise(0.7, 0.3, 700); }
@@ -843,17 +926,19 @@ var CHORD = [
   [43.65,  87.31, 110.00, 130.81], /* 2 F  */
   [41.20,  82.41,  98.00, 123.47], /* 3 Em */
   [36.71,  73.42,  87.31, 110.00], /* 4 Dm */
-  [32.70,  65.41,  82.41,  98.00]  /* 5 C  */
+  [32.70,  65.41,  82.41,  98.00], /* 5 C  */
+  [58.27, 116.54, 146.83, 174.61]  /* 6 Bb */
 ];
 var PROG = {
-  cruise: [0, 1, 2, 1, 0, 1, 3, 4],
-  boss:   [0, 0, 2, 2, 3, 3, 4, 1]
+  cruise: [0, 5, 2, 1, 0, 5, 3, 4],
+  final:  [4, 6, 5, 1, 4, 6, 2, 0]
 };
 /* semitone offsets above the octave root; 0 is a rest */
 var LEAD = {
   a:    [12, 0, 0, 10,  0, 12, 0, 15,  0, 0, 10, 0, 12, 0,  7, 0],
   b:    [ 0,15, 0,  0, 17,  0,19, 0,  15, 0,  0,12,  0,10,  0,12],
-  boss: [ 0, 7, 0,  5,  0,  3, 0, 7,   0,10,  0, 7,  5, 3,  0, 1]
+  c:    [19, 0, 0, 17,  0, 15, 0, 12,   0,15,  0,17,  0, 0, 19, 0],
+  final:[12, 0, 7,  0, 12,  0,15, 0,  17, 0, 15,12,  0,10,  7, 0]
 };
 var ARP = [0, 7, 12, 16, 19, 16, 12, 7];
 
@@ -872,6 +957,26 @@ function mvoice(type, freq, t, dur, vol, cut, res, send){
   if (send && AU.delay) g.connect(AU.delay);
   o.start(t); o.stop(t + dur + 0.04);
 }
+/* a brass-ish stack: a saw doubled a fifth up with a slower attack */
+function brass(f, t, dur, vol, cut){
+  var voices = [[1, vol], [1.4983, vol * 0.52], [2.004, vol * 0.34]];
+  for (var i = 0; i < voices.length; i++){
+    var o = AU.ac.createOscillator(), g = AU.ac.createGain(), fl = AU.ac.createBiquadFilter();
+    o.type = "sawtooth"; o.frequency.setValueAtTime(f * voices[i][0], t);
+    fl.type = "lowpass"; fl.Q.value = 1.2;
+    fl.frequency.setValueAtTime(cut * 0.42, t);
+    fl.frequency.linearRampToValueAtTime(cut, t + dur * 0.32);
+    fl.frequency.exponentialRampToValueAtTime(Math.max(220, cut * 0.35), t + dur);
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.linearRampToValueAtTime(voices[i][1], t + 0.045);
+    g.gain.setValueAtTime(voices[i][1], t + dur * 0.6);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    o.connect(fl); fl.connect(g); g.connect(AU.mus);
+    if (i === 0 && AU.delay) g.connect(AU.delay);
+    o.start(t); o.stop(t + dur + 0.05);
+  }
+}
+
 function mnoise(t, dur, vol, cut, hp){
   var n = Math.max(1, Math.floor(AU.ac.sampleRate * dur));
   var buf = AU.ac.createBuffer(1, n, AU.ac.sampleRate);
@@ -887,8 +992,8 @@ function mnoise(t, dur, vol, cut, hp){
 
 function musicStep(step, t){
   var bar = (step >> 4) & 7, s = step & 15;
-  var boss = MUS.mode === "boss";
-  var ch = CHORD[(boss ? PROG.boss : PROG.cruise)[bar]];
+  var boss = MUS.mode === "final";
+  var ch = CHORD[(boss ? PROG.final : PROG.cruise)[bar]];
   var lv = MUS.level;
   var half = bar >= 4;
 
@@ -923,14 +1028,20 @@ function musicStep(step, t){
   }
 
   /* --- lead --- */
-  var pat = boss ? LEAD.boss : (half ? LEAD.b : LEAD.a);
+  var pat = boss ? LEAD.final : (half ? LEAD.b : LEAD.a);
   var semi = pat[s];
   if (semi && (lv > 0.14 || boss)){
     var f0 = ch[1] * Math.pow(2, semi / 12);
-    mvoice(boss ? "square" : "triangle", f0, t, boss ? 0.17 : 0.22, 0.30, 3600, 1.5, 1);
-    mvoice("sawtooth", f0 * 2.004, t, 0.13, 0.10, 3200, 1.5, 0);
+    brass(f0, t, boss ? 0.26 : 0.30, 0.26, 3400);
   }
-  if (boss && s === 15) mvoice("sawtooth", ch[0] * 4, t, 0.12, 0.18, 4200, 5, 1);
+  /* a counter-line in the second half once the run is well under way */
+  if (!boss && lv > 0.55 && half){
+    var cs = LEAD.c[s];
+    if (cs) mvoice("triangle", ch[1] * Math.pow(2, cs / 12) * 0.5, t, 0.28, 0.11, 2200, 1.4, 1);
+  }
+  /* timpani on the downbeat */
+  if (s === 0){ mvoice("sine", ch[0] * 0.75, t, 0.42, 0.30, 260, 1); mnoise(t, 0.09, 0.10, 300); }
+  if (boss && s === 15) brass(ch[1] * 2, t, 0.2, 0.16, 4200);
 }
 function musicTick(){
   if (!AU.ac || !AU.on || !MUS.on) return;
@@ -1023,6 +1134,7 @@ window.addEventListener("keydown", function(e){
   keys[k] = true;
   if (k === "p" && G.phase === "run") togglePause();
   if (k === "b") dropBomb();
+  if (k === "f" && !e.shiftKey) toggleComputer();
   if (k === "q") barrelRoll(-1);
   if (k === "e") barrelRoll(1);
   /* double tap to roll */
@@ -1055,8 +1167,8 @@ function movePointer(e){
    7 - Game state
    ============================================================ */
 var DIFF = {
-  standard: { shield:100, dmg:1.0, base:250, fire:1.0, label:"Standard" },
-  ace:      { shield:70,  dmg:1.7, base:300, fire:1.35, label:"Ace" }
+  standard: { shield:100, dmg:1.0, base:250, fire:1.00, lock:0.74, label:"Standard" },
+  ace:      { shield:70,  dmg:1.7, base:300, fire:1.35, lock:0.56, label:"Ace" }
 };
 var diffKey = "standard";
 var BLOOM = CAN_BLOOM;
@@ -1065,9 +1177,9 @@ var RUN_LEN = 6200;
 var G = null;
 
 var CALLS = [
-  { id:"kestrel", name:"KESTREL", pitch:1.15 },
-  { id:"pike",    name:"PIKE",    pitch:0.72 },
-  { id:"marlow",  name:"MARLOW",  pitch:1.0 }
+  { id:"red2", name:"RED TWO",   pitch:1.05 },
+  { id:"red3", name:"RED THREE", pitch:0.74 },
+  { id:"red6", name:"RED SIX",   pitch:1.16 }
 ];
 
 function newGame(){
@@ -1084,11 +1196,12 @@ function newGame(){
       { c:CALLS[2], hp:100, x:2,   y:-16, z:210, t:4, alive:true, chased:0, said:0 }
     ],
     spawnAcc:0, spawnGap:280, propAcc:0, shake:0, flash:0, hitFlash:0,
-    debris:[], canyon:0, fov:1, combo:0, bestCombo:0,
-    boss:null, result:null, sunk:0, said:{}
+    debris:[], trench:0, fov:1, combo:0, bestCombo:0,
+    port:null, computer:true, lock:0, lockTick:0, fired:false, torpedo:null,
+    result:null, said:{}
   };
 }
-function bestKey(){ return "nova-best-" + diffKey; }
+function bestKey(){ return "redfive-best-" + diffKey; }
 function getBest(){ try { return parseInt(localStorage.getItem(bestKey()) || "0", 10) || 0; } catch (e){ return 0; } }
 function setBest(v){ try { localStorage.setItem(bestKey(), String(v)); } catch (e){} }
 
@@ -1109,9 +1222,9 @@ function spawnEnemy(p){
 }
 function spawnProp(p){
   var kind = G.phase === "idle" ? Math.random() * 0.8 : Math.random();
-  if (G.stage === "canyon" && kind < 0.42){
+  if (G.stage === "trench" && kind < 0.42){
     G.props.push({ kind:"arch", x:rnd(-12, 12), y:GROUND, z:FAR, yaw:0, s:1 });
-  } else if (kind < 0.62 && G.stage !== "canyon"){
+  } else if (kind < 0.62 && G.stage !== "trench"){
     var side = Math.random() < 0.5 ? -1 : 1;
     G.props.push({ kind:"block", x:side * rnd(66, 124), y:GROUND, z:FAR, yaw:rnd(-0.4, 0.4), s:rnd(0.8, 1.5) });
   } else if (kind < 0.82){
@@ -1120,17 +1233,18 @@ function spawnProp(p){
     G.rings3.push({ x:rnd(-30, 30), y:rnd(-20, 12), z:FAR, spin:Math.random() * 6.28, got:0 });
   }
 }
-function spawnBoss(){
-  G.boss = {
-    x:0, y:-14, z:FAR * 0.8, hold:310, hp:100, maxhp:100,
-    t:0, open:0, openT:2.4, phase:1, cool:1.6, yaw:0, dead:0, dying:0
-  };
-  G.stage = "boss";
-  banner("Dreadnought", "Core opens when it fires");
-  musicStart();
-  MUS.mode = "boss"; MUS.bpm = 158;
-  say("Kestrel", "That is the carrier. Its core only opens when the main gun fires.", true, 1.15);
-  document.getElementById("bossbar").classList.add("on");
+function beginApproach(){
+  G.stage = "approach";
+  G.port = { x:rnd(-22, 22), y:rnd(8, 19), z:FAR * 0.95 };
+  G.computer = true; G.lock = 0; G.fired = false; G.torpedo = null;
+  G.enemies = G.enemies.filter(function(e){ return !e.dead; });
+  banner("Final Approach", "Thermal exhaust port dead ahead");
+  MUS.mode = "final"; MUS.bpm = 150;
+  document.getElementById("lockbar").classList.add("on");
+  if (G.bombs > 0)
+    say("Gold Leader", "There it is. Everything you have left, Red Five.", true, 0.82);
+  else
+    say("Gold Leader", "Red Five, your tubes are empty. You have nothing to shoot it with.", true, 0.82);
 }
 
 /* ============================================================
@@ -1138,6 +1252,7 @@ function spawnBoss(){
    ============================================================ */
 function fireLaser(){
   var s = G.ship;
+  if (G.stage === "approach" && !G.fired && G.port && G.port.z < 820){ attemptTorpedo(); return; }
   if (s.cool > 0) return;
   s.cool = 0.11;
   for (var i = -1; i <= 1; i += 2){
@@ -1165,7 +1280,6 @@ function nearestTarget(){
     var d = Math.abs(e.x - G.ship.x) * 2 + Math.abs(e.y - G.ship.y) * 2 + e.z * 0.25;
     if (e.z > SHIPZ && d < bd){ bd = d; best = e; }
   }
-  if (G.boss && !G.boss.dead) return G.boss;
   return best;
 }
 function barrelRoll(dir){
@@ -1176,9 +1290,12 @@ function barrelRoll(dir){
 }
 function dropBomb(){
   if (G.phase !== "run" || G.bombs <= 0) return;
+  if (G.stage === "approach"){ attemptTorpedo(); return; }
   G.bombs--;
   paintBombs();
   SFX.bomb();
+  if (G.bombs === 1) say("Gold Leader", "One torpedo left, Red Five. Save it for the port.", true, 0.82);
+  if (G.bombs === 0) say("Gold Leader", "That was your last torpedo. You have nothing left for the shaft.", true, 0.82);
   G.shake = 1.4; G.flash = 0.9;
   G.bolts.length = 0;
   var i;
@@ -1190,7 +1307,6 @@ function dropBomb(){
     var p = G.props[i];
     if (p.kind === "turret" && !p.dead && p.z < 700){ p.dead = 1; G.score += 150; boom(p.x, p.y - 6, p.z, 2.2); }
   }
-  if (G.boss && !G.boss.dead && G.boss.open > 0) hurtBoss(9);
   boom(G.ship.x, G.ship.y, SHIPZ + 220, 9);
 }
 function togglePause(){
@@ -1313,10 +1429,10 @@ function update(dt){
     else if (s.charge < 0.56) SFX.charge();
   } else if (s.firing){ s.firing = false; }
 
-  /* the canyon closes in around you */
-  var wantCanyon = (G.stage === "canyon") ? 1 : 0;
-  G.canyon += (wantCanyon - G.canyon) * Math.min(1, dt * 0.5);
-  LIM_X = 46 - 9 * G.canyon;
+  /* the trench walls close in around you */
+  var wantTrench = (G.stage === "trench" || G.stage === "approach") ? 1 : 0;
+  G.trench += (wantTrench - G.trench) * Math.min(1, dt * 0.5);
+  LIM_X = 46 - 9 * G.trench;
 
   /* throttle */
   var boost = keys["shift"] === true, brake = keys["control"] === true || keys["z"] === true;
@@ -1333,18 +1449,18 @@ function update(dt){
   cam.roll += (s.bank * 0.14 - cam.roll) * Math.min(1, dt * 5);
 
   /* --- progress --- */
-  if (G.stage !== "boss"){
+  if (G.stage !== "approach"){
     G.traveled += G.speed * dt;
     G.score += G.speed * dt * 0.04;
     var p = G.traveled / RUN_LEN;
     MUS.level = Math.min(1, p);
     MUS.bpm = 142 + p * 14;
     if (G.stage === "surface" && p > 0.45){
-      G.stage = "canyon";
-      banner("Canyon Run", "Tighten it up");
-      say("Pike", "Dropping into the canyon. Watch the arches, they do not move.", true, 0.72);
+      G.stage = "trench";
+      banner("The Trench", "Stay on the deck");
+      say("Red Three", "Dropping into the trench. Mind the gantries, they do not move.", true, 0.74);
     }
-    if (p >= 1 && !G.boss) spawnBoss();
+    if (p >= 1 && !G.port) beginApproach();
 
     G.spawnAcc += G.speed * dt;
     if (G.spawnAcc >= G.spawnGap){
@@ -1388,12 +1504,12 @@ function update(dt){
         mt.alive = false; mt.hp = 0;
         boom(mt.x, mt.y, mt.z, 3);
         SFX.bigboom();
-        say(mt.c.name, "I am hit! I cannot hold it \u2014 ejecting!", true, mt.c.pitch);
+        say(mt.c.name, "I am hit! I cannot hold her - I am going in!", true, mt.c.pitch);
       }
     }
   }
   /* occasionally put an enemy on a wingmate's tail */
-  if (G.stage !== "boss" && Math.random() < dt * 0.14){
+  if (G.stage !== "approach" && Math.random() < dt * 0.14){
     var free = G.mates.filter(function(m){ return m.alive && m.chased <= 0; });
     if (free.length){
       var m2 = pick(free);
@@ -1478,17 +1594,17 @@ function update(dt){
       var dx = G.ship.x - rg.x, dy = G.ship.y - rg.y;
       if (dx * dx + dy * dy < 132){
         G.rings++;
-        G.shield = Math.min(G.maxShield, G.shield + 12);
+        G.shield = Math.min(G.maxShield, G.shield + 14);
         G.score += 300;
         SFX.ring(); paintShield();
-        sparks(rg.x, rg.y, SHIPZ + 8, 12, "255,201,74");
+        sparks(rg.x, rg.y, SHIPZ + 8, 12, "127,212,255");
       }
     }
     if (rg.z < -40) G.rings3.splice(ri, 1);
   }
 
-  /* --- boss --- */
-  if (G.boss) updateBoss(dt, d);
+  /* --- the run in --- */
+  if (G.port) updateApproach(dt, d);
 
   /* --- player shots --- */
   for (var si = G.shots.length - 1; si >= 0; si--){
@@ -1517,17 +1633,16 @@ function update(dt){
       if (tp.kind !== "turret" || tp.dead) continue;
       if (Math.abs(sh.z - tp.z) < 34 && Math.abs(sh.x - tp.x) < 9 && Math.abs(sh.y - (tp.y - 6)) < 9){
         tp.hp -= sh.charged ? 5 : 1;
-        sparks(tp.x, tp.y - 6, tp.z, 4, "255,201,74");
+        sparks(tp.x, tp.y - 6, tp.z, 4, "255,176,32");
         if (tp.hp <= 0){ tp.dead = 1; G.score += 150; G.hits++; boom(tp.x, tp.y - 6, tp.z, 2.2); SFX.boom(); }
         killed = 1;
       }
     }
-    if (!killed && G.boss && !G.boss.dead && Math.abs(sh.z - (G.boss.z + 30 * BOSS_S)) < 46 * BOSS_S &&
-        Math.abs(sh.x - G.boss.x) < 40 * BOSS_S && Math.abs(sh.y - G.boss.y) < 22 * BOSS_S){
-      var inCore = G.boss.open > 0 && Math.abs(sh.x - G.boss.x) < 11 * BOSS_S &&
-                   Math.abs(sh.y - (G.boss.y + BOSS_S)) < 9 * BOSS_S;
-      if (inCore){ hurtBoss(sh.charged ? 7 : 1.4); }
-      else { sparks(sh.x, sh.y, sh.z, 3, "150,170,200"); SFX.ding(); }
+    if (!killed && G.port && Math.abs(sh.z - G.port.z) < 26 &&
+        Math.abs(sh.x - G.port.x) < 26 && Math.abs(sh.y - G.port.y) < 26){
+      /* lasers will not do it - the shaft is ray shielded */
+      sparks(sh.x, sh.y, sh.z, 3, "160,170,190");
+      SFX.ding();
       killed = 1;
     }
     if (killed || sh.life <= 0 || sh.z > FAR) G.shots.splice(si, 1);
@@ -1592,7 +1707,7 @@ function enemyShot(x, y, z, dmgScale){
 function hurtEnemy(e, n){
   e.hp -= n;
   e.flash = 0.12;
-  sparks(e.x, e.y, e.z, 4, "163,92,255");
+  sparks(e.x, e.y, e.z, 4, "150,160,175");
   if (e.hp <= 0){
     e.dead = 0.5;
     G.hits++;
@@ -1600,7 +1715,7 @@ function hurtEnemy(e, n){
     if (G.combo > G.bestCombo) G.bestCombo = G.combo;
     if (G.combo === 5 || G.combo === 10 || G.combo === 18){
       sting([0, 7, 12, 16], 220, 0.06);
-      say("Marlow", G.combo >= 10 ? "You are cleaning house out there." : "Nice shooting.", false, 1.0);
+      say("Red Six", G.combo >= 10 ? "You are cleaning house out there, Red Five." : "Nice shot.", false, 1.16);
     }
     G.score += (e.mode === "tail" ? 800 : e.big ? 600 : 200) * (1 + Math.min(4, G.combo / 5));
     boom(e.x, e.y, e.z, e.big ? 4 : 2.4);
@@ -1609,7 +1724,7 @@ function hurtEnemy(e, n){
     if (e.mode === "tail" && e.tail && e.tail.alive){
       e.tail.chased = 0; e.tail.chaser = null;
       G.saves++;
-      say(e.tail.c.name, "He is off me. I owe you one.", true, e.tail.c.pitch);
+      say(e.tail.c.name, "He is off me. Thanks, Red Five.", true, e.tail.c.pitch);
     }
   }
 }
@@ -1630,84 +1745,93 @@ function hurt(n){
     finish("down");
   } else if (G.shield < G.maxShield * 0.25 && !G.said.low){
     G.said.low = 1;
-    say("Kestrel", "Your shield is nearly gone. Find a ring, fast.", true, 1.15);
+    say("Gold Leader", "Your deflectors are nearly gone, Red Five. Find a booster.", true, 0.82);
   }
 }
-function hurtBoss(n){
-  var b = G.boss;
-  b.hp -= n;
-  sparks(b.x, b.y, b.z + 30, 8, "255,201,74");
-  SFX.boom();
-  G.score += Math.round(n * 90);
-  paintBoss();
-  if (b.hp <= 50 && b.phase === 1){
-    b.phase = 2; b.openT = 1.8;
-    say("Marlow", "Half its shield is gone. It is opening the core more often now.", true, 1.0);
+function updateApproach(dt, d){
+  var pt = G.port;
+  pt.z -= G.speed * dt;
+
+  if (G.computer && !G.fired){
+    var inBox = Math.abs(G.ship.x - pt.x) < 17 && Math.abs(G.ship.y - pt.y) < 15 && pt.z < 900;
+    if (inBox){
+      var before = G.lock;
+      G.lock = Math.min(1, G.lock + dt * d.lock);
+      G.lockTick -= dt;
+      if (G.lockTick <= 0){ G.lockTick = 0.14; SFX.ding(); }
+      if (before < 1 && G.lock >= 1){
+        sting([0, 4, 7, 12], 330, 0.05);
+        say("Gold Leader", "Lock confirmed. Take the shot.", true, 0.82);
+      }
+    } else {
+      G.lock = Math.max(0, G.lock - dt * 1.1);
+    }
   }
-  if (b.hp <= 0){
-    b.hp = 0; paintBoss();
-    b.dead = 1; b.dying = 2.4;
-    SFX.bigboom(); G.shake = 1.6;
+  paintLock();
+
+  /* the surface guns keep working the whole way in */
+  G.approachFire = (G.approachFire || 0) - dt;
+  if (G.approachFire <= 0 && pt.z > 300){
+    G.approachFire = rnd(0.8, 1.7) / d.fire;
+    var sd = Math.random() < 0.5 ? -1 : 1;
+    enemyShot(sd * rnd(30, 46), rnd(-16, 14), pt.z * 0.55, 0.9);
+  }
+
+  if (G.torpedo){
+    var tp = G.torpedo;
+    tp.z += 900 * dt;
+    if (tp.z >= pt.z){ finish(tp.hit ? "hit" : "miss"); G.torpedo = null; }
+  } else if (pt.z <= SHIPZ){
+    finish("over");
   }
 }
-function updateBoss(dt, d){
-  var b = G.boss;
-  b.t += dt;
-  if (b.dying > 0){
-    b.dying -= dt;
-    b.z -= 12 * dt;
-    if (Math.random() < dt * 16) boom(b.x + rnd(-34, 34) * BOSS_S, b.y + rnd(-12, 8) * BOSS_S, b.z + rnd(-18, 30) * BOSS_S, rnd(2.4, 5));
-    if (b.dying <= 0) finish("win");
+
+function attemptTorpedo(){
+  var pt = G.port;
+  if (!pt || G.fired) return;
+  if (G.bombs <= 0){
+    SFX.ding();
+    say("Gold Leader", "Empty tubes, Red Five. Pull up and get clear.", true, 0.82);
     return;
   }
-  b.z += (b.hold - b.z) * Math.min(1, dt * 0.6);
-  b.x = Math.sin(b.t * (b.phase === 2 ? 0.55 : 0.36)) * 34;
-  b.yaw = -Math.cos(b.t * 0.36) * 0.14;
+  G.bombs--;
+  paintBombs();
+  G.fired = true;
+  SFX.torpedo();
+  var dx = Math.abs(G.ship.x - pt.x), dy = Math.abs(G.ship.y - pt.y);
+  var hit = G.computer ? (G.lock >= 1 && dx < 18 && dy < 16) : (dx < 27 && dy < 24);
+  G.torpedo = { x:G.ship.x, y:G.ship.y, z:SHIPZ, hit:hit };
+}
 
-  b.cool -= dt;
-  if (b.open > 0){
-    b.open -= dt;
-    if (b.open <= 0) b.open = 0;
-  } else if (b.cool <= 0){
-    b.cool = b.phase === 2 ? 3.0 : 4.2;
-    b.open = b.openT;
-    sting([0, 3, 7], 330, 0.05, "sawtooth");
-    /* the main gun fires while the core is exposed */
-    for (var i = -2; i <= 2; i++){
-      var ang = i * 7;
-      G.bolts.push({
-        x:b.x + ang * BOSS_S, y:b.y + 2, z:b.z + 24 * BOSS_S,
-        vx:(G.ship.x + ang * 1.6 - b.x) / ((b.z - SHIPZ) / 380),
-        vy:(G.ship.y - b.y) / ((b.z - SHIPZ) / 380),
-        vz:-380, dmg:11 * d.dmg
-      });
-    }
-    SFX.enemy();
-  }
-  /* side pods keep up a slower stream */
-  if (Math.random() < dt * (b.phase === 2 ? 1.5 : 0.9)){
-    var sd = Math.random() < 0.5 ? -1 : 1;
-    enemyShot(b.x + sd * 33 * BOSS_S, b.y - 1, b.z + 30 * BOSS_S, 0.9);
-  }
-  if (Math.random() < dt * 0.22 && G.enemies.length < 5) spawnEnemy(1);
+function toggleComputer(){
+  if (G.stage !== "approach" || G.fired) return;
+  G.computer = !G.computer;
+  G.lock = 0;
+  paintLock();
+  SFX.ding();
+  if (!G.computer) say("Gold Leader", "You switched off your targeting computer. What is wrong?", true, 0.82);
+  else say("Gold Leader", "Computer back online. Hold it steady.", true, 0.82);
 }
 
 function finish(kind){
   G.phase = "over";
   G.result = kind;
   droneLevel(0);
-  document.getElementById("bossbar").classList.remove("on");
-  if (kind === "win"){
-    G.score += 8000 + Math.round(G.shield * 40) + G.saves * 1200;
+  document.getElementById("lockbar").classList.remove("on");
+  if (kind === "hit"){
+    G.score += 8000 + Math.round(G.shield * 40) + G.saves * 1200 + G.bombs * 900;
+    if (!G.computer) G.score += 6000;
     SFX.win();
-    say("Kestrel", "Carrier is breaking up. Good shooting \u2014 form up and let us go home.", true, 1.15);
+    if (G.port) boom(G.port.x, G.port.y, G.port.z, 7);
+    G.shake = 1.8; G.flash = 1;
+    say("Gold Leader", "That is a direct hit. The whole thing is going up. Pull out, Red Five.", true, 0.82);
     musicStop(1.8);
   } else {
     SFX.fail();
-    say("Kestrel", "We lost him. Break off, break off.", true, 1.15);
+    say("Gold Leader", "Red Five is down. Break off, break off.", true, 0.82);
     musicStop(0.5);
   }
-  setTimeout(showEnd, kind === "win" ? 1800 : 1200);
+  setTimeout(showEnd, kind === "hit" ? 2000 : 1300);
 }
 
 /* ============================================================
@@ -1715,85 +1839,87 @@ function finish(kind){
    ============================================================ */
 function drawSky(){
   var g = ctx.createLinearGradient(0, 0, 0, Math.max(1, CY + 10));
-  g.addColorStop(0, "#06101f");
-  g.addColorStop(0.45, "#123350");
-  g.addColorStop(0.85, "#2d6f86");
-  g.addColorStop(1, "#7fc7c4");
+  g.addColorStop(0, "#010206");
+  g.addColorStop(0.62, "#04060d");
+  g.addColorStop(1, "#0b0f18");
   ctx.fillStyle = g;
   ctx.fillRect(0, 0, W, CY + 12);
 
-  /* sun */
-  var sx = CX - cam.x * 0.8 + W * 0.22, sy = CY - H * 0.20 - cam.y * 0.6;
-  var sg = ctx.createRadialGradient(sx, sy, 0, sx, sy, H * 0.30);
-  sg.addColorStop(0, "rgba(255,222,170,.95)");
-  sg.addColorStop(0.18, "rgba(255,160,90,.45)");
-  sg.addColorStop(1, "rgba(255,120,60,0)");
-  ctx.fillStyle = sg;
-  ctx.fillRect(0, 0, W, CY + 12);
+  /* starfield, parallaxed against the camera */
+  var sxo = cam.x * 0.55, syo = cam.y * 0.55;
+  for (var i = 0; i < (QUALITY >= 2 ? 150 : 90); i++){
+    var h1 = hash(i * 7 + 1), h2 = hash(i * 31 + 5), h3 = hash(i * 53 + 9);
+    var stx = ((h1 * W * 2.2 - sxo) % (W * 1.4) + W * 1.4) % (W * 1.4) - W * 0.2;
+    var sty = h2 * (CY + 6) - syo * 0.6;
+    if (sty < -4 || sty > CY - 2) continue;
+    ctx.fillStyle = "rgba(232,236,245," + (0.25 + h3 * 0.7).toFixed(3) + ")";
+    var d = h3 > 0.9 ? 2 : 1;
+    ctx.fillRect(stx, sty, d, d);
+  }
 
-  /* a ringed world hanging over the horizon */
-  var pw = CX + W * 0.34 - cam.x * 0.30, ph = CY - H * 0.31 - cam.y * 0.30;
-  var pr = H * 0.095;
-  var pg = ctx.createRadialGradient(pw - pr * 0.4, ph - pr * 0.4, pr * 0.1, pw, ph, pr);
-  pg.addColorStop(0, "#6f7fa8");
-  pg.addColorStop(0.55, "#3e4a70");
-  pg.addColorStop(1, "#1b2340");
-  ctx.fillStyle = pg;
-  ctx.beginPath(); ctx.arc(pw, ph, pr, 0, 6.28318); ctx.fill();
+  /* the gas giant this station is holding station over */
+  var pw = CX + W * 0.33 - cam.x * 0.30, ph = CY - H * 0.34 - cam.y * 0.30;
+  var pr = H * 0.155;
   ctx.save();
-  ctx.translate(pw, ph); ctx.rotate(-0.34);
-  ctx.strokeStyle = "rgba(160,180,215,.34)"; ctx.lineWidth = Math.max(1.5, pr * 0.075);
-  ctx.beginPath(); ctx.ellipse(0, 0, pr * 1.72, pr * 0.36, 0, 0, 6.28318); ctx.stroke();
-  ctx.strokeStyle = "rgba(120,140,180,.2)"; ctx.lineWidth = Math.max(1, pr * 0.04);
-  ctx.beginPath(); ctx.ellipse(0, 0, pr * 2.05, pr * 0.44, 0, 0, 6.28318); ctx.stroke();
+  ctx.beginPath(); ctx.arc(pw, ph, pr, 0, 6.28318); ctx.clip();
+  var pg = ctx.createRadialGradient(pw - pr * 0.45, ph - pr * 0.45, pr * 0.08, pw, ph, pr);
+  pg.addColorStop(0, "#b8a468");
+  pg.addColorStop(0.45, "#7d7a3e");
+  pg.addColorStop(0.8, "#3f4a2a");
+  pg.addColorStop(1, "#141a10");
+  ctx.fillStyle = pg;
+  ctx.fillRect(pw - pr, ph - pr, pr * 2, pr * 2);
+  for (var bd = 0; bd < 7; bd++){
+    var by = ph - pr + (bd + hash(bd * 17) * 0.7) * (pr * 2 / 7);
+    ctx.fillStyle = "rgba(30,36,20," + (0.10 + hash(bd * 29) * 0.16).toFixed(3) + ")";
+    ctx.fillRect(pw - pr, by, pr * 2, pr * (0.10 + hash(bd * 41) * 0.13));
+  }
+  ctx.restore();
+  /* terminator */
+  var tg = ctx.createLinearGradient(pw - pr, ph, pw + pr, ph);
+  tg.addColorStop(0, "rgba(0,0,0,0)");
+  tg.addColorStop(0.55, "rgba(2,3,7,.35)");
+  tg.addColorStop(1, "rgba(2,3,7,.92)");
+  ctx.save();
+  ctx.beginPath(); ctx.arc(pw, ph, pr, 0, 6.28318); ctx.clip();
+  ctx.fillStyle = tg; ctx.fillRect(pw - pr, ph - pr, pr * 2, pr * 2);
   ctx.restore();
 
-  /* small moon */
-  var mw = CX - W * 0.30 - cam.x * 0.22, mh = CY - H * 0.24 - cam.y * 0.22, mr = H * 0.028;
-  var mg = ctx.createRadialGradient(mw - mr * 0.3, mh - mr * 0.3, 0, mw, mh, mr);
-  mg.addColorStop(0, "#c9d6e8"); mg.addColorStop(1, "#5a6884");
+  /* a moon of it, and a far cruiser silhouette */
+  var mw = CX - W * 0.31 - cam.x * 0.22, mh = CY - H * 0.26 - cam.y * 0.22, mr = H * 0.026;
+  var mg = ctx.createRadialGradient(mw - mr * 0.35, mh - mr * 0.35, 0, mw, mh, mr);
+  mg.addColorStop(0, "#9aa6b4"); mg.addColorStop(1, "#2c333d");
   ctx.fillStyle = mg;
   ctx.beginPath(); ctx.arc(mw, mh, mr, 0, 6.28318); ctx.fill();
 
-  /* cloud banks stacked over the horizon */
-  for (var cb = 0; cb < 4; cb++){
-    var cy2 = CY - H * (0.03 + cb * 0.045) - cam.y * 0.35;
-    var cx2 = CX + Math.sin(cb * 2.1 + G.traveled * 0.0004) * W * 0.35 - cam.x * 0.4;
-    ctx.fillStyle = "rgba(150,210,220," + (0.10 - cb * 0.017).toFixed(3) + ")";
-    ctx.beginPath();
-    ctx.ellipse(cx2, cy2, W * (0.44 - cb * 0.06), H * (0.030 - cb * 0.004), 0, 0, 6.28318);
-    ctx.fill();
-  }
-
-  /* lens flare walking back through the frame centre */
-  var fdx = CX - sx, fdy = CY - sy;
-  for (var lf = 1; lf <= 4; lf++){
-    var t2 = lf * 0.46;
-    var fr = (H * 0.016) * (lf === 2 ? 2.1 : lf === 4 ? 1.5 : 1);
-    ctx.fillStyle = lf % 2 ? "rgba(255,180,110,.05)" : "rgba(120,220,255,.045)";
-    ctx.beginPath(); ctx.arc(sx + fdx * t2, sy + fdy * t2, fr, 0, 6.28318); ctx.fill();
-  }
-
-  /* distant ridge line */
-  ctx.fillStyle = "#183b52";
+  /* the station's surface running away to the limb */
+  ctx.fillStyle = "#1a1d24";
   ctx.beginPath();
   ctx.moveTo(0, CY + 1);
   var drift = G.traveled * 0.02 + cam.x * 0.5;
-  for (var i = 0; i <= 26; i++){
-    var xr = i / 26 * W;
-    var hh = (hash(i * 31 + Math.floor(drift / 90)) * 0.55 + hash(i * 7) * 0.45) * H * 0.11;
+  for (var k = 0; k <= 30; k++){
+    var xr = k / 30 * W;
+    var hh = (hash(k * 31 + Math.floor(drift / 110)) * 0.6 + hash(k * 7) * 0.4) * H * 0.055
+           + Math.sin(k / 30 * 3.1416) * H * 0.018;
     ctx.lineTo(xr, CY - hh);
   }
   ctx.lineTo(W, CY + 1);
   ctx.closePath();
   ctx.fill();
+  /* a thin lit edge along the limb */
+  ctx.strokeStyle = "rgba(255,176,32,.16)";
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(0, CY - H * 0.006);
+  ctx.lineTo(W, CY - H * 0.006);
+  ctx.stroke();
 }
 
 function drawGround(){
   /* haze band at the horizon */
   var hz = ctx.createLinearGradient(0, CY, 0, CY + H * 0.16);
-  hz.addColorStop(0, "#1a3048");
-  hz.addColorStop(1, "#0e1c2c");
+  hz.addColorStop(0, "#171a21");
+  hz.addColorStop(1, "#0b0d12");
   ctx.fillStyle = hz;
   ctx.fillRect(0, CY, W, H - CY);
 
@@ -1808,9 +1934,9 @@ function drawGround(){
     if (zB < 10) continue;
     var idx = Math.floor((G.traveled + z) / step);
     var t = Math.max(0, 1 - zA / FOG1);
-    var base = ((idx & 1) ? 30 : 38) * (0.4 + t * 0.9);
-    var r = (base * 0.55) | 0, gg = (base * 0.95) | 0, bb = (base * 1.25) | 0;
-    ctx.fillStyle = "rgb(" + r + "," + gg + "," + bb + ")";
+    var base = ((idx & 1) ? 31 : 40) * (0.4 + t * 0.9);
+    var r = (base * 1.0) | 0, gg = (base * 1.02) | 0, bb = (base * 1.12) | 0;
+    ctx.fillStyle = colStr(r, gg, bb);
     ctx.beginPath();
     ctx.moveTo(pjx(-span, zA), pjy(GROUND, zA));
     ctx.lineTo(pjx(span, zA), pjy(GROUND, zA));
@@ -1820,18 +1946,18 @@ function drawGround(){
     ctx.fill();
 
     /* surface plates - the texture that sells the scale */
-    if (zA < 620){
+    if (zA < 520){
       var n = QUALITY >= 2 ? 3 : 2;
       for (var k = 0; k < n; k++){
         var h1 = hash(idx * 17 + k * 53);
         if (h1 < 0.42) continue;
         var px0 = (h1 * 2 - 1) * span * 0.85;
         var pw = 26 + hash(idx * 7 + k) * 60;
-        var sh2 = (base * (1.2 + hash(idx * 11 + k) * 0.45)) | 0;
-        var warm = hash(idx * 23 + k * 3) > 0.66;
-        ctx.fillStyle = warm
-          ? "rgb(" + ((sh2 * 1.15) | 0) + "," + ((sh2 * 0.78) | 0) + "," + ((sh2 * 0.55) | 0) + ")"
-          : "rgb(" + ((sh2 * 0.5) | 0) + "," + ((sh2 * 0.9) | 0) + "," + ((sh2 * 1.15) | 0) + ")";
+        var sh2 = (base * (1.15 + hash(idx * 11 + k) * 0.5)) | 0;
+        var lampRow = hash(idx * 23 + k * 3) > 0.87;
+        ctx.fillStyle = lampRow
+          ? colStr((sh2 * 1.22) | 0, (sh2 * 1.0) | 0, (sh2 * 0.52) | 0)
+          : colStr((sh2 * 0.94) | 0, (sh2 * 0.97) | 0, (sh2 * 1.08) | 0);
         ctx.beginPath();
         ctx.moveTo(pjx(px0, zA), pjy(GROUND, zA));
         ctx.lineTo(pjx(px0 + pw, zA), pjy(GROUND, zA));
@@ -1843,9 +1969,9 @@ function drawGround(){
     }
   }
 
-  /* canyon walls rise as the corridor tightens */
-  if (G.canyon > 0.02){
-    var CWX = 55, wallTop = GROUND - 118 * G.canyon;
+  /* trench walls rise as the corridor tightens */
+  if (G.trench > 0.02){
+    var CWX = 55, wallTop = GROUND - 118 * G.trench;
     for (var side2 = -1; side2 <= 1; side2 += 2){
       /* the near side of each wall is lit, the base sits in its own shadow */
       var lit = (side2 === -1) ? 1.16 : 0.82;
@@ -1854,15 +1980,15 @@ function drawGround(){
         if (wB < 10) continue;
         var wi = Math.floor((G.traveled + wz) / step);
         var wt = Math.max(0, 1 - wA / FOG1);
-        var wb = (26 + (wi & 1) * 7 + hash(wi * 13) * 15) * (0.30 + wt * 0.92) * lit;
+        var wb = (30 + (wi & 1) * 8 + hash(wi * 13) * 12) * (0.30 + wt * 0.92) * lit;
         var xA = pjx(side2 * CWX, wA), xB = pjx(side2 * CWX, wB);
         for (var sg = 0; sg < 3; sg++){
           var f0 = sg / 3, f1 = (sg + 1) / 3;
           var yA0 = wallTop + (GROUND - wallTop) * f0;
           var yA1 = wallTop + (GROUND - wallTop) * f1;
-          var tone = sg === 0 ? 1.28 : sg === 1 ? 0.92 : 0.62;
+          var tone = sg === 0 ? 1.30 : sg === 1 ? 0.94 : 0.64;
           var c = wb * tone;
-          ctx.fillStyle = "rgb(" + ((c * 0.98) | 0) + "," + ((c * 0.74) | 0) + "," + ((c * 0.63) | 0) + ")";
+          ctx.fillStyle = colStr((c * 0.96) | 0, (c * 1.0) | 0, (c * 1.10) | 0);
           ctx.beginPath();
           ctx.moveTo(xA, pjy(yA0, wA));
           ctx.lineTo(xA, pjy(yA1, wA));
@@ -1871,7 +1997,7 @@ function drawGround(){
           ctx.closePath(); ctx.fill();
         }
         if (wA < 520 && hash(wi * 29 + side2) > 0.68){
-          ctx.fillStyle = "rgba(255,201,74,.30)";
+          ctx.fillStyle = "rgba(255,176,32,.34)";
           var ly0 = wallTop + 30, ly1 = ly0 + 5;
           ctx.beginPath();
           ctx.moveTo(xA, pjy(ly0, wA));
@@ -1881,7 +2007,7 @@ function drawGround(){
           ctx.closePath(); ctx.fill();
         }
       }
-      ctx.strokeStyle = "rgba(255,150,95,.6)";
+      ctx.strokeStyle = "rgba(255,176,32,.5)";
       ctx.lineWidth = 2;
       ctx.beginPath();
       ctx.moveTo(pjx(side2 * CWX, 16), pjy(wallTop, 16));
@@ -1891,7 +2017,7 @@ function drawGround(){
   }
 
   /* the lit corridor markings */
-  ctx.strokeStyle = "rgba(77,226,255,.20)";
+  ctx.strokeStyle = "rgba(150,165,185,.16)";
   ctx.lineWidth = 1;
   for (var gx = -160; gx <= 160; gx += 40){
     ctx.beginPath();
@@ -1899,7 +2025,7 @@ function drawGround(){
     ctx.lineTo(pjx(gx, far), pjy(GROUND, far));
     ctx.stroke();
   }
-  ctx.strokeStyle = "rgba(255,106,61,.35)";
+  ctx.strokeStyle = "rgba(255,176,32,.35)";
   ctx.lineWidth = 2;
   for (var mx = -1; mx <= 1; mx += 2){
     ctx.beginPath();
@@ -1967,7 +2093,7 @@ function drawFx(){
 
 function drawSpeedLines(){
   if (!G.boosting) return;
-  ctx.strokeStyle = "rgba(141,255,200,.20)";
+  ctx.strokeStyle = "rgba(200,220,255,.20)";
   ctx.lineWidth = 1.4;
   var span = Math.min(W, H);
   for (var i = 0; i < 44; i++){
@@ -1979,6 +2105,81 @@ function drawSpeedLines(){
     ctx.lineTo(CX + Math.cos(a) * r1, CY + Math.sin(a) * r1);
     ctx.stroke();
   }
+}
+
+function drawTorpedo(){
+  if (!G.torpedo || !G.port) return;
+  var T = G.torpedo, z = T.z;
+  if (z < 8) return;
+  var k = FOCAL / z;
+  var X = pjx(T.x, z), Y = pjy(T.y, z);
+  var pX = pjx(G.port.x, G.port.z), pY = pjy(G.port.y, G.port.z);
+  var mix = Math.min(1, (z - SHIPZ) / Math.max(1, G.port.z - SHIPZ));
+  X += (pX - X) * mix * (T.hit ? 1 : 0.35);
+  Y += (pY - Y) * mix * (T.hit ? 1 : 0.35);
+  var r = Math.max(2.5, k * 3.2);
+  var g = ctx.createRadialGradient(X, Y, 0, X, Y, r * 3);
+  g.addColorStop(0, "rgba(255,246,220,.95)");
+  g.addColorStop(0.3, "rgba(255,150,90,.6)");
+  g.addColorStop(1, "rgba(255,90,50,0)");
+  ctx.fillStyle = g;
+  ctx.beginPath(); ctx.arc(X, Y, r * 3, 0, 6.28318); ctx.fill();
+  ctx.strokeStyle = "rgba(255,190,120,.75)";
+  ctx.lineWidth = Math.max(1, r * 0.5);
+  ctx.beginPath();
+  ctx.moveTo(X - r * 1.7, Y + r * 3.6); ctx.lineTo(X - r * 0.4, Y);
+  ctx.moveTo(X + r * 1.7, Y + r * 3.6); ctx.lineTo(X + r * 0.4, Y);
+  ctx.stroke();
+}
+
+/* targeting computer: brackets that close on the port, plus where this
+   heading actually puts you when you get there */
+function drawComputer(){
+  if (G.stage !== "approach" || !G.port || G.fired) return;
+  var pt = G.port;
+  if (pt.z < 12) return;
+  var locked = G.lock >= 1;
+  var X = pjx(pt.x, pt.z), Y = pjy(pt.y, pt.z);
+  var k = FOCAL / pt.z;
+
+  if (G.computer){
+    var r = 14 * k * 1.9 + (1 - G.lock) * (W * 0.07);
+    var arm = Math.max(7, r * 0.38);
+    ctx.strokeStyle = locked ? "rgba(127,212,255,.95)" : "rgba(255,176,32,.85)";
+    ctx.lineWidth = 2;
+    var c = [[-1,-1],[1,-1],[-1,1],[1,1]];
+    for (var i = 0; i < 4; i++){
+      var sx = c[i][0], sy = c[i][1];
+      ctx.beginPath();
+      ctx.moveTo(X + sx * r, Y + sy * r - sy * arm);
+      ctx.lineTo(X + sx * r, Y + sy * r);
+      ctx.lineTo(X + sx * r - sx * arm, Y + sy * r);
+      ctx.stroke();
+    }
+    var aX = pjx(G.ship.x, pt.z), aY = pjy(G.ship.y, pt.z);
+    ctx.strokeStyle = locked ? "rgba(127,212,255,.9)" : "rgba(255,176,32,.6)";
+    ctx.lineWidth = 1.4;
+    ctx.beginPath(); ctx.arc(aX, aY, 9, 0, 6.28318); ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(aX - 16, aY); ctx.lineTo(aX - 11, aY);
+    ctx.moveTo(aX + 11, aY); ctx.lineTo(aX + 16, aY);
+    ctx.moveTo(aX, aY - 16); ctx.lineTo(aX, aY - 11);
+    ctx.moveTo(aX, aY + 11); ctx.lineTo(aX, aY + 16);
+    ctx.stroke();
+    if (!locked){
+      ctx.strokeStyle = "rgba(255,176,32,.26)";
+      ctx.setLineDash([4, 5]); ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(aX, aY); ctx.lineTo(X, Y); ctx.stroke();
+      ctx.setLineDash([]);
+    }
+  }
+
+  var fs = Math.max(10, Math.min(14, W * 0.012));
+  ctx.font = "600 " + fs.toFixed(0) + "px 'Saira Condensed','Helvetica Neue',sans-serif";
+  ctx.textAlign = "center";
+  ctx.fillStyle = "rgba(138,134,118,.92)";
+  ctx.fillText(G.computer ? "PRESS F TO SWITCH IT OFF" : "COMPUTER OFF - FIRE WHEN IT FEELS RIGHT",
+               W / 2, Math.max(52, H * 0.115));
 }
 
 function drawReticles(){
@@ -2024,7 +2225,7 @@ function renderScene(){
     if (!G.enemies[i].dead) groundShadow(G.enemies[i].x, G.enemies[i].y, G.enemies[i].z, 7);
   for (i = 0; i < G.rings3.length; i++)
     if (!G.rings3[i].got) groundShadow(G.rings3[i].x, G.rings3[i].y, G.rings3[i].z, 12);
-  if (G.boss && !G.boss.dead) groundShadow(G.boss.x, G.boss.y, G.boss.z + 20, 40 * BOSS_S);
+  if (G.port) groundShadow(G.port.x, G.port.y, G.port.z, 30);
 
   /* props */
   for (i = 0; i < G.props.length; i++){
@@ -2048,23 +2249,11 @@ function renderScene(){
   for (i = 0; i < G.enemies.length; i++){
     var e = G.enemies[i];
     if (e.dead) continue;
-    pushModel(M.enemy, e.x, e.y, e.z, e.yaw, 0, e.roll, e.big ? 1.85 : 1,
-              e.flash > 0 ? [255, 246, 235] : (e.big ? [190, 130, 60] : null));
+    pushModel(e.big ? M.bomber : M.enemy, e.x, e.y, e.z, e.yaw, 0, e.roll, e.big ? 1.25 : 1,
+              e.flash > 0 ? [255, 246, 235] : null);
   }
-  /* boss */
-  if (G.boss){
-    var b = G.boss;
-    {
-      pushModel(M.boss, b.x, b.y, b.z, b.yaw, 0, 0, BOSS_S);
-      var slide = (b.open > 0 ? 9 : 0) * BOSS_S;
-      pushModel(M.shutterL, b.x - slide, b.y + BOSS_S, b.z + 30 * BOSS_S, b.yaw, 0, 0, BOSS_S);
-      pushModel(M.shutterR, b.x + slide, b.y + BOSS_S, b.z + 30 * BOSS_S, b.yaw, 0, 0, BOSS_S);
-      if (b.open > 0){
-        var pulse = (0.85 + 0.3 * Math.sin(G.t * 12)) * BOSS_S;
-        pushModel(M.core, b.x, b.y + BOSS_S, b.z + 29 * BOSS_S, 0, 0, G.t * 1.6, pulse, [255, 120, 90]);
-      }
-    }
-  }
+  /* the exhaust port, set into the trench floor */
+  if (G.port) pushModel(M.port, G.port.x, G.port.y, G.port.z, 0, 0, 0, 1);
   /* tumbling wreckage */
   for (i = 0; i < G.debris.length; i++){
     var db = G.debris[i];
@@ -2084,16 +2273,16 @@ function drawEngines(){
   if (s.inv > 0 && ((s.inv * 22) | 0) % 2 === 0) return;
   var boost = keys["shift"] === true;
   var z = SHIPZ - 5.4, k = FOCAL / z;
-  var rr = ((boost ? 2.3 : 1.25) + Math.sin(G.t * 42) * 0.1) * k;
+  var rr = ((boost ? 2.1 : 1.15) + Math.sin(G.t * 42) * 0.1) * k;
   var cb = Math.cos(s.bank + s.roll), sb = Math.sin(s.bank + s.roll);
   for (var i = -1; i <= 1; i += 2){
-    var ex = s.x + i * 2.4 * cb, ey = s.y + i * 2.4 * sb;
+    var ex = s.x + i * 2.7 * cb, ey = s.y + i * 2.7 * sb;
     var X = pjx(ex, z), Y = pjy(ey, z);
     /* tapered wash trailing straight back */
     var tl = rr * (boost ? 5.2 : 2.6);
     var lg = ctx.createLinearGradient(X, Y, X - sb * tl, Y + cb * tl);
-    lg.addColorStop(0, "rgba(150,255,200,.55)");
-    lg.addColorStop(1, "rgba(77,226,255,0)");
+    lg.addColorStop(0, "rgba(190,232,255,.55)");
+    lg.addColorStop(1, "rgba(110,180,255,0)");
     ctx.fillStyle = lg;
     ctx.beginPath();
     ctx.moveTo(X - cb * rr, Y - sb * rr);
@@ -2102,9 +2291,9 @@ function drawEngines(){
     ctx.lineTo(X - sb * tl - cb * rr * 0.2, Y + cb * tl - sb * rr * 0.2);
     ctx.closePath(); ctx.fill();
     var g = ctx.createRadialGradient(X, Y, 0, X, Y, rr);
-    g.addColorStop(0, "rgba(235,255,245,.95)");
-    g.addColorStop(0.45, "rgba(141,255,176,.6)");
-    g.addColorStop(1, "rgba(77,226,255,0)");
+    g.addColorStop(0, "rgba(240,250,255,.95)");
+    g.addColorStop(0.45, "rgba(159,216,255,.62)");
+    g.addColorStop(1, "rgba(90,160,255,0)");
     ctx.fillStyle = g;
     ctx.beginPath(); ctx.arc(X, Y, rr, 0, 6.28318); ctx.fill();
   }
@@ -2128,42 +2317,42 @@ function render(){
   for (i = 0; i < G.shots.length; i++){
     var sh = G.shots[i];
     drawBolt({ x:sh.x, y:sh.y, z:sh.z, vx:0, vy:0, vz:1 },
-             sh.charged ? "rgba(180,255,210,.95)" : "rgba(141,255,176,.95)",
+             sh.charged ? "rgba(255,210,170,.95)" : "rgba(255,72,58,.95)",
              sh.charged ? 3.2 * (sh.r || 1) : 0.9);
   }
-  for (i = 0; i < G.bolts.length; i++) drawBolt(G.bolts[i], "rgba(255,90,80,.95)", 1.1);
+  for (i = 0; i < G.bolts.length; i++) drawBolt(G.bolts[i], "rgba(120,255,140,.95)", 1.1);
 
   drawEngines();
   drawSpeedLines();
-  if (G.boss && !G.boss.dead && G.boss.open > 0){
-    var bz = G.boss.z + 29 * BOSS_S;
-    if (bz > 20){
-      var bk = FOCAL / bz;
-      var bX = pjx(G.boss.x, bz), bY = pjy(G.boss.y + BOSS_S, bz);
-      var br = (16 + Math.sin(G.t * 12) * 2.5) * BOSS_S * bk;
-      var bg = ctx.createRadialGradient(bX, bY, 0, bX, bY, br);
-      bg.addColorStop(0, "rgba(255,240,220,.95)");
-      bg.addColorStop(0.28, "rgba(255,90,70,.8)");
-      bg.addColorStop(1, "rgba(255,60,50,0)");
-      ctx.fillStyle = bg;
-      ctx.beginPath(); ctx.arc(bX, bY, br, 0, 6.28318); ctx.fill();
-    }
+  if (G.port && G.port.z > 20){
+    var bk = FOCAL / G.port.z;
+    var bX = pjx(G.port.x, G.port.z), bY = pjy(G.port.y, G.port.z);
+    var pulse = 0.62 + 0.38 * Math.sin(G.t * 5);
+    var br = 14 * bk * pulse;
+    var bg = ctx.createRadialGradient(bX, bY, 0, bX, bY, br * 2.4);
+    bg.addColorStop(0, "rgba(255,235,200,.85)");
+    bg.addColorStop(0.3, "rgba(255,90,60,.55)");
+    bg.addColorStop(1, "rgba(255,60,40,0)");
+    ctx.fillStyle = bg;
+    ctx.beginPath(); ctx.arc(bX, bY, br * 2.4, 0, 6.28318); ctx.fill();
   }
+  drawTorpedo();
   drawFx();
   ctx.restore();
 
   drawReticles();
+  drawComputer();
 
   if (BLOOM && CAN_BLOOM && GW > 1){
     gctx.globalCompositeOperation = "source-over";
     gctx.fillStyle = "rgba(0,0,0,.62)";
     gctx.fillRect(0, 0, GW, GH);
     gctx.globalCompositeOperation = "lighter";
-    gctx.filter = "brightness(1.35) contrast(3.6) blur(3px)";
+    gctx.filter = "brightness(1.4) contrast(3.4) blur(3px)";
     gctx.drawImage(cv, 0, 0, GW, GH);
     gctx.filter = "none";
     ctx.globalCompositeOperation = "lighter";
-    ctx.globalAlpha = 0.36;
+    ctx.globalAlpha = 0.40;
     ctx.drawImage(gcv, 0, 0, W, H);
     ctx.globalAlpha = 1;
     ctx.globalCompositeOperation = "source-over";
@@ -2186,7 +2375,8 @@ var elShield = document.getElementById("shield"), elShieldG = document.getElemen
 var elScore = document.getElementById("score"), elHits = document.getElementById("hits");
 var elDist = document.getElementById("dist"), elThrottle = document.getElementById("throttle");
 var elBombs = document.getElementById("bombs"), elWing = document.getElementById("wing");
-var elBossG = document.getElementById("boss-g"), elWarn = document.getElementById("warn");
+var elLockG = document.getElementById("lock-g"), elWarn = document.getElementById("warn");
+var elLockBar = document.getElementById("lockbar"), elLockLbl = document.getElementById("lock-lbl");
 var elFps = document.getElementById("fps"), elQual = document.getElementById("qual");
 var elCombo = document.getElementById("combo");
 var elMs = document.getElementById("ms");
@@ -2212,8 +2402,16 @@ function paintWing(){
   }
   elWing.innerHTML = h;
 }
-function paintBoss(){
-  if (G.boss) elBossG.style.width = Math.max(0, G.boss.hp / G.boss.maxhp * 100) + "%";
+function paintLock(){
+  if (!G.port) return;
+  var locked = G.lock >= 1;
+  elLockG.style.width = (G.computer ? G.lock * 100 : 100) + "%";
+  elLockBar.classList.toggle("ready", locked || !G.computer);
+  elLockLbl.textContent = G.fired
+    ? "Torpedo away"
+    : !G.computer ? "Targeting computer off - fly it yourself"
+    : locked ? "Lock acquired - fire"
+    : "Targeting computer - lock " + Math.round(G.lock * 100) + "%";
 }
 var warnOn = false;
 function paintHud(){
@@ -2221,7 +2419,7 @@ function paintHud(){
   elHits.textContent = String(G.hits);
   elCombo.textContent = "x" + G.combo + " chain";
   elCombo.classList.toggle("on", G.combo > 1);
-  var rem = G.stage === "boss" ? 0 : Math.max(0, RUN_LEN - G.traveled);
+  var rem = G.port ? Math.max(0, G.port.z - SHIPZ) : Math.max(0, RUN_LEN - G.traveled);
   elDist.textContent = String(Math.round(rem)).padStart(4, "0");
   elThrottle.style.width = Math.min(100, G.speed / (G.baseSpeed * 1.5) * 100) + "%";
   elSector.textContent = G.stage.toUpperCase();
@@ -2237,11 +2435,11 @@ function paintHud(){
    13 - Screens
    ============================================================ */
 var MEDALS = {
-  standard: [[42, "Gold", "#ffc94a", "Not a target left behind you."],
+  standard: [[42, "Gold", "#ffb020", "Not one interceptor left behind you."],
              [28, "Silver", "#cdd7e4", "A clean run with a few gaps."],
-             [16, "Bronze", "#c98a4a", "You got through. Next time, get more of them."]],
-  ace:      [[34, "Gold", "#ffc94a", "On Ace difficulty. That is a record worth keeping."],
-             [22, "Silver", "#cdd7e4", "Ace difficulty and you still cleared the board."],
+             [16, "Bronze", "#c98a4a", "You got through. Next time, take more of them with you."]],
+  ace:      [[34, "Gold", "#ffb020", "On Ace difficulty. That is a record worth keeping."],
+             [22, "Silver", "#cdd7e4", "Ace difficulty and you still cleared the lane."],
              [12, "Bronze", "#c98a4a", "Ace difficulty is unkind. You made it."]]
 };
 function medalFor(hits){
@@ -2251,27 +2449,40 @@ function medalFor(hits){
 }
 
 function showEnd(){
-  var win = G.result === "win";
+  var win = G.result === "hit";
   var best = getBest(), score = Math.round(G.score), isBest = score > best;
   if (isBest) setBest(score);
   var alive = G.mates.filter(function(m){ return m.alive; }).length;
 
-  document.getElementById("e-eyebrow").textContent = win ? "Mission complete" : "Mission failed";
+  document.getElementById("e-eyebrow").textContent = win ? "Target destroyed" : "Run failed";
   var t = document.getElementById("e-title"), b = document.getElementById("e-body");
   if (win){
-    t.innerHTML = alive === 3 ? "All four of you came <em>home</em>." : "Dreadnought down.";
-    b.textContent = alive === 3
-      ? "The carrier is a cloud of scrap and not one of your squadron is missing. That does not happen often."
-      : "The carrier is gone. It cost you " + (3 - alive) + " of the squadron, and they knew the odds when they launched.";
-  } else {
+    t.innerHTML = G.computer
+      ? (alive === 3 ? "All four of you came <em>home</em>." : "Direct hit.")
+      : "You switched it <em>off</em>. And you still hit it.";
+    b.textContent = !G.computer
+      ? "No lock, no readout, no computer. Just the shot. Nobody is going to believe the telemetry."
+      : (alive === 3
+        ? "The torpedo went straight down the shaft and not one of your squadron is missing. That does not happen often."
+        : "The station is gone. It cost you " + (3 - alive) + " of the squadron, and they knew the odds when they launched.");
+  } else if (G.result === "down"){
     t.textContent = "Shield gone.";
-    b.textContent = "You took one hit too many. Roll through the incoming fire, and fly the gold rings instead of past them.";
+    b.textContent = "You took one hit too many. Roll through the incoming fire, and fly the shield boosters instead of past them.";
+  } else if (G.result === "miss"){
+    t.textContent = "Negative, it didn't go in.";
+    b.textContent = "The torpedo impacted the surface beside the port. Hold the lock a moment longer before you release it.";
+  } else {
+    t.textContent = G.bombs > 0 ? "You flew right over it." : "Empty tubes.";
+    b.textContent = G.bombs > 0
+      ? "The port passed underneath with a torpedo still in the tube. Fire before the range reads zero."
+      : "You reached the port with nothing left to shoot it with. The salvo on B draws from the same three torpedoes as the shot at the end.";
   }
   var stats = [
     ["Score", score, isBest], ["Best", Math.max(best, score), false],
     ["Kills", G.hits, false], ["Rings", G.rings, false],
     ["Saves", G.saves, false], ["Best chain", "x" + G.bestCombo, false],
-    ["Squadron", alive + "/3", false], ["Time", G.flightTime.toFixed(1) + "s", false]
+    ["Squadron", alive + "/3", false], ["Computer", G.computer ? "On" : "Off", false],
+    ["Time", G.flightTime.toFixed(1) + "s", false]
   ];
   var html = "";
   for (var i = 0; i < stats.length; i++)
@@ -2285,7 +2496,7 @@ function showEnd(){
     : "";
   document.getElementById("e-stats").innerHTML = html;
   document.getElementById("p-end").hidden = false;
-  elState.textContent = win ? "TARGET DESTROYED" : "SHIP LOST";
+  elState.textContent = win ? "TARGET DESTROYED" : (G.result === "down" ? "SHIP LOST" : "RUN FAILED");
   document.getElementById("btn-again").focus();
 }
 function refreshBestLine(){
@@ -2304,12 +2515,12 @@ function start(){
   document.getElementById("p-start").hidden = true;
   document.getElementById("p-end").hidden = true;
   document.getElementById("p-pause").hidden = true;
-  document.getElementById("bossbar").classList.remove("on");
+  document.getElementById("lockbar").classList.remove("on");
   document.getElementById("hud").hidden = false;
   elState.textContent = "IN THE CORRIDOR";
   musicStart();
-  banner("Operation Nova", "Surface run");
-  say("Kestrel", "Nova Squadron is away. Stay on the deck and watch each other's tails.", true, 1.15);
+  banner("Red Squadron", "Surface run");
+  say("Gold Leader", "Red Squadron is in. Stay on the deck and watch each other's tails.", true, 0.82);
   last = performance.now();
 }
 
